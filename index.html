@@ -30,42 +30,98 @@
   </div>
 
   <div id="examples">
-   Examples: <a href="#" id="teredo-example">Teredo</a> | <a href="#" id="canonical-example">Canonical</a> | <a href="#" id="correct-example">Correct</a>
+   Examples: <a href="#address=2001::ce49:7601:e866:efff:62c3:fffe">Teredo</a> | <a href="#address=000a:000b:000c:000d:0000:0000:0000:0000">Canonical</a> | <a href="#address=2608::3:5">Correct</a> | <a href="#address=2001:4860:4001:803::1011">Google</a>
   </div>
 
   <div id="settings">
    <label><input type="checkbox" id="show-diff" /> Show diff?</label>
-   <label><input type="checkbox" id="show-arin" /> Show ARIN?</label>
+   <label><input type="checkbox" id="show-hover" /> Show hover groups?</label>
+   <label><input type="checkbox" id="hide-arin" /> Hide ARIN?</label>
   </div>
 
   <div class="clear-fix">
    <dl>
     <dt>Valid?</dt> <dd class="output" id="valid"></dd>
     <dt class="error">Error</dt> <dd class="error" id="error"></dd>
-    <dt><a href="http://tools.ietf.org/html/rfc5952">Correct?</a></dt> <dd class="output" id="correct"></dd>
+    <dt><a href="http://tools.ietf.org/html/rfc5952#page-10" title="À la 'A Recommendation for IPv6 Text Representation'">Correct?</a></dt> <dd class="output" id="correct"></dd>
     <dt>Canonical?</dt> <dd class="output" id="canonical"></dd>
    </dl>
 
    <dl>
-    <dt>Original</dt> <dd class="output" id="original"></dd>
+    <dt>Original</dt>
+     <dd class="output no-hover" id="original"></dd>
+     <dd class="output hover" id="original-hover"></dd>
+    <dt>As parsed</dt>
+     <dd class="output no-diff" id="parsed"></dd>
+     <dd class="output diff" id="parsed-diff"></dd>
+     <dd class="output hover" id="parsed-hover"></dd>
     <dt>Subnet string</dt> <dd class="output" id="subnet-string"></dd>
     <dt>Percent string</dt> <dd class="output" id="percent-string"></dd>
-    <dt>Parsed address</dt> <dd class="output" id="parsed"></dd>
-    <dt>Correct form</dt> <dd class="output" id="correct-form"></dd>
-    <dt>Canonical form</dt> <dd class="output" id="canonical-form"></dd>
-    <dt>IPv4 form</dt> <dd class="output" id="ipv4-form"></dd>
-    <dt>Decimal form</dt> <dd class="output" id="decimal-groups">
    </dl>
+
+   <h2>Address forms</h2>
+
+   <dl>
+    <dt>Correct</dt> 
+     <dd class="output no-diff" id="correct-form"></dd>
+     <dd class="output diff" id="correct-form-diff"></dd>
+     <dd class="output hover" id="correct-form-hover"></dd>
+    <dt>IPv4</dt>
+     <dd class="output no-hover" id="ipv4-form"></dd>
+     <dd class="output hover" id="ipv4-form-hover"></dd>
+    <dt>Canonical</dt>
+     <dd class="output no-diff" id="canonical-form"></dd>
+     <dd class="output diff" id="canonical-form-diff"></dd>
+     <dd class="output hover" id="canonical-form-hover"></dd>
+    <dt>Decimal</dt>
+     <dd class="output no-hover" id="decimal-groups"></dd>
+     <dd class="output hover" id="decimal-groups-hover"></dd>
+   </dl>
+
+   <h2>Numeric forms</h2>
 
    <dl>
     <dt>Base 16</dt> <dd class="output" id="base-16"></dd>
     <dt>Base 10</dt> <dd class="output" id="base-10"></dd>
-    <dt>Base 2</dt> <dd class="output" id="base-2"></dd>
+    <dt>Base 2</dt>
+     <dd class="output no-hover" id="base-2"></dd>
+     <dd class="output hover" id="base-2-hover"></dd>
    </dl>
 
    <dl>
-    <dt>Teredo</dt> <dd><pre class="output" id="teredo"></pre></dd>
-    <dt class="arin">ARIN lookup</dt> <dd><pre class="arin output" id="arin"></pre></dd>
+    <dt>Teredo</dt>
+    <dd id="teredo"><dl class="output">
+     <dl>
+      <dt>Prefix</dt> <dd class="prefix"></dd>
+      <dt>Server v4</dt> <dd class="server-v4"></dd>
+      <dt>Client v4</dt> <dd class="client-v4"></dd>
+      <dt>UDP port</dt> <dd class="udp-port"></dd>
+      <dt>Flags</dt> <dd class="flags"></dd>
+     </dl>
+    </dd>
+    <dd id="not-teredo">
+     Not a Teredo address.
+    </dd>
+   </dl>
+
+   <dl class="arin">
+    <dt>ARIN lookup</dt>
+    <dd id="arin-error">No ARIN information found for this address</dd>
+    <dd id="arin">
+     <dl>
+      <dt>Name</dt> <dd class="name"></dd>
+      <dt>Organization</dt> <dd class="organization"></dd>
+      <dt>Comment</dt> <dd class="comment"></dd>
+      <dt>Reg. date</dt> <dd class="registration-date"></dd>
+      <dt>Update date</dt> <dd class="update-date"></dd>
+      <dt>Version</dt> <dd class="version"></dd>
+      <dt>Handle</dt> <dd class="handle"></dd>
+      <dt>Parent</dt> <dd class="parent"></dd>
+      <dt>Start address</dt> <dd class="start-address"></dd>
+      <dt>End address</dt> <dd class="end-address"></dd>
+      <dt>Netblocks</dt> <dd class="netblocks"></dd>
+     </dl>
+    </dd>
    </dl>
   </div>
 
@@ -80,6 +136,7 @@
     <li><a href="http://tools.ietf.org/html/rfc4472">4472: Operational Considerations and Issues with IPv6 DNS</a></li>
     <li><a href="http://tools.ietf.org/html/rfc5952">5952: A Recommendation for IPv6 Address Text Representation</a></li>
     <li><a href="http://tools.ietf.org/html/rfc6052">6052: IPv6 Addressing of IPv4/IPv6 Translators</a></li>
+    <li><a href="http://tools.ietf.org/html/rfc6204">6204: Basic Requirements for IPv6 Customer Edge Routers</a></li>
    </ul>
 
    <ul id="wikipedia">
