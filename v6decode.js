@@ -12,6 +12,7 @@ diff_match_patch.prototype.diff_ourHtml = function(diffs) {
    for (var x = 0; x < diffs.length; x++) {
       var op = diffs[x][0];    // Operation (insert, delete, equal)
       var data = diffs[x][1];  // Text of change.
+
       var text = data.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;')
          .replace(pattern_gt, '&gt;').replace(pattern_para, '&para;<br>');
 
@@ -35,7 +36,22 @@ diff_match_patch.prototype.diff_ourHtml = function(diffs) {
    return html.join('');
 };
 
+// A convenience function to diff two addresses (or other text)
+function diff(a, b) {
+   var dmp = new diff_match_patch();
+
+   var d = dmp.diff_main(a, b);
+
+   return dmp.diff_ourHtml(d);
+}
+
 function format_netblock(netblock) {
+   var start = netblock.startAddress.$.toLowerCase();
+   var end = netblock.endAddress.$.toLowerCase();
+
+   start = sprintf('<a href="#address=%s">%s</a>', start, start);
+   end = sprintf('<a href="#address=%s">%s</a>', end, end);
+
    $('#arin .netblocks').append(sprintf('<dl>' +
       '<dt>CIDR length</dt> <dd>%s</dd>' +
       '<dt>Description</dt> <dd>%s</dd>' +
@@ -45,8 +61,8 @@ function format_netblock(netblock) {
       '</dl>',
       netblock.cidrLength.$,
       netblock.description.$,
-      netblock.startAddress.$,
-      netblock.endAddress.$,
+      start,
+      end,
       netblock.type.$));
 }
 
@@ -99,7 +115,9 @@ function format_arin(data) {
    }
 
    if (data.netBlocks) {
-      $.each(data.netBlocks, function(i, n) { format_netblock(n); });
+      $.each(data.netBlocks, function(i, n) {
+         format_netblock(n);
+      });
 
       $('#arin .netblocks').show().prev().show();
 
@@ -141,66 +159,66 @@ function add_hover_classes(address) {
 
 // Runs whenever the address changes
 function update_address() {
-   var o = $('#address').val();
-   var a = new v6.Address(o);
+   var original = $('#address').val();
+   var address = new v6.Address(original);
 
-   $.bbq.pushState({ address: o });
+   $.bbq.pushState({ address: original });
 
-   o = o.replace(/%.*/, '');
+   original = original.replace(/%.*/, '');
 
-   if (a.isValid()) {
+   if (address.isValid()) {
       $('.error').hide();
 
       $('#address-wrapper').addClass('blue');
       $('#address-wrapper').removeClass('red');
 
       $('#valid').text('Yes');
-      $('#correct').text(a.isCorrect() ? 'Yes' : 'No');
-      $('#canonical').text(a.isCanonical() ? 'Yes' : 'No');
+      $('#correct').text(address.isCorrect() ? 'Yes' : 'No');
+      $('#canonical').text(address.isCanonical() ? 'Yes' : 'No');
 
-      $('#original').html(span_leading_zeroes(o));
-      $('#original-hover').html(add_hover_classes(o));
+      $('#original').html(span_leading_zeroes(original));
+      $('#original-hover').html(add_hover_classes(original));
 
-      $('#subnet-string').text(a.subnet_string ? a.subnet_string : 'None');
-      $('#percent-string').text(a.percent_string ? a.percent_string : 'None');
+      $('#subnet-string').text(address.subnet_string ? address.subnet_string : 'None');
+      $('#percent-string').text(address.percent_string ? address.percent_string : 'None');
 
-      var p = a.parsed_address.join(':');
-      var p2 = diff(o, p);
+      var p = address.parsed_address.join(':');
+      var p2 = diff(original, p);
 
       $('#parsed').html(span_leading_zeroes(p));
       $('#parsed-hover').html(add_hover_classes(p));
       $('#parsed-diff').html(p2);
 
-      var co = a.correct_form();
-      var co2 = diff(o, co);
+      var co = address.correct_form();
+      var co2 = diff(original, co);
 
       $('#correct-form').html(span_leading_zeroes(co));
       $('#correct-form-hover').html(add_hover_classes(co));
       $('#correct-form-diff').html(co2);
 
-      var ca = a.canonical_form();
-      var ca2 = diff(o, ca);
+      var ca = address.canonical_form();
+      var ca2 = diff(original, ca);
 
       $('#canonical-form').html(span_leading_zeroes(ca));
       $('#canonical-form-hover').html(add_hover_classes(ca));
       $('#canonical-form-diff').html(ca2);
 
-      $('#ipv4-form').html(span_leading_zeroes(a.v4_form()));
-      $('#ipv4-form-hover').html(add_hover_classes(a.v4_form()));
+      $('#ipv4-form').html(span_leading_zeroes(address.v4_form()));
+      $('#ipv4-form-hover').html(add_hover_classes(address.v4_form()));
 
-      $('#decimal-groups').html(span_leading_zeroes(a.decimal()));
-      $('#decimal-groups-hover').html(add_hover_classes(a.decimal()));
+      $('#decimal-groups').html(span_leading_zeroes(address.decimal()));
+      $('#decimal-groups-hover').html(add_hover_classes(address.decimal()));
 
-      $('#base-16').text(a.bigInteger().toString(16));
-      $('#base-10').text(a.bigInteger().toString());
+      $('#base-16').text(address.bigInteger().toString(16));
+      $('#base-10').text(address.bigInteger().toString());
 
-      var z = [a.zeroPad().slice(0, 64), a.zeroPad().slice(64,128)];
+      var z = [address.zeroPad().slice(0, 64), address.zeroPad().slice(64,128)];
 
       var base2 = z.join('<br />').replace(/(0+)/g, '<span class="zero">$1</span>');
 
       $('#base-2').html(base2);
 
-      var b2 = a.zeroPad();
+      var b2 = address.zeroPad();
       var b2a = [];
 
       for (var i = 0; i < 8; i++) {
@@ -210,8 +228,8 @@ function update_address() {
 
       $('#base-2-hover').html(b2a.slice(0, 4).join('') + '<br />' + b2a.slice(4, 8).join(''));
 
-      if (a.isTeredo()) {
-         var teredoData = a.teredo();
+      if (address.isTeredo()) {
+         var teredoData = address.teredo();
 
          $('#teredo .prefix').text(teredoData.prefix);
          $('#teredo .server-v4').text(teredoData.server_v4);
@@ -226,7 +244,7 @@ function update_address() {
          $('#not-teredo').show();
       }
 
-      $.getJSON('/arin/ip/' + a.correct_form(), function getArinJson(data) {
+      $.getJSON('/arin/ip/' + address.correct_form(), function getArinJson(data) {
          format_arin(data.net);
 
          $('#arin-error').hide();
@@ -248,7 +266,7 @@ function update_address() {
       $('.output').text('');
 
       $('.error').show();
-      $('#error').text(a.error);
+      $('#error').text(address.error);
 
       $('#valid').text('No');
    }
@@ -280,15 +298,6 @@ function add_hover_functions() {
    }, function hoverOut(e) {
       $('.hover-group').removeClass('active');
    });
-}
-
-// A convenience function to diff two addresses (or other text)
-function diff(a, b) {
-   var dmp = new diff_match_patch();
-
-   var d = dmp.diff_main(a, b);
-
-   return dmp.diff_ourHtml(d);
 }
 
 function update_arin() {
