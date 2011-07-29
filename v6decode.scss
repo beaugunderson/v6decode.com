@@ -7,7 +7,7 @@ $main-color: #2daebf;
 }
 
 body {
-  padding: 1em 10em;
+  padding: 1em 8em;
   line-height: 1.3em;
 }
 
@@ -24,6 +24,10 @@ h2 {
 a {
   text-decoration: none;
   color: $main-color;
+}
+
+.hidden {
+   display: none;
 }
 
 span.zero {
@@ -50,7 +54,7 @@ label {
 }
 
 .parse-error {
-   background-color: #e33100;
+  background-color: #e33100;
 }
 
 /* Dynamic display */
@@ -62,6 +66,7 @@ label {
   display: none;
 }
 
+span.active,
 .hover-group,
 .parse-error {
   border-radius: 3px;
@@ -73,8 +78,13 @@ label {
   margin-right: -2px;
 }
 
+span.active,
 .hover-group.active {
   background-color: lighten($main-color, 35);
+}
+
+span.active.error {
+  background-color: lighten(red, 35);
 }
 
 .diff-visible .diff {
@@ -92,6 +102,15 @@ label {
 
 .error {
   display: none;
+}
+
+.error .zero {
+   color: red;
+}
+
+.digit.error {
+   display: inline;
+   color: red;
 }
 
 #arin-error {

@@ -140,7 +140,7 @@ function update_address() {
 
    $.bbq.pushState({ address: original });
 
-   original = original.replace(/%.*/, '');
+   original = original.replace(/[%\/].*/, '');
 
    if (address.isValid()) {
       $('.error').hide();
@@ -154,16 +154,56 @@ function update_address() {
 
       $('#original').html(v6.Address.group(original));
 
-      $('#subnet-string').text(address.subnet_string ? address.subnet_string : 'None');
-      $('#percent-string').text(address.percent_string ? address.percent_string : 'None');
+      $('#subnet').text(address.subnet ? address.subnet : 'None');
+      $('#zone').text(address.zone ? address.zone : 'None');
 
-      var parsed1 = address.parsed_address.join(':');
+      $('#subnet').unbind();
+
+      $('#subnet').hover(function() {
+         for (var row = 1; row <= 2; row++) {
+            var $e = $();
+
+            for (var i = 0; i < address.subnetMask; i++) {
+               $e = $e.add(sprintf('#row-%d .position-%d', row, i));
+            }
+
+            $e.clone().prependTo('#row-' + row).wrapAll('<span class="active" />');
+
+            $e.addClass('hidden');
+         }
+
+         var bits = address.getBitsPastSubnet();
+         var offset = address.subnetMask + bits.indexOf('1');
+         var lastOffset = address.subnetMask + bits.lastIndexOf('1');
+
+         if (offset >= address.subnetMask) {
+            for (var row = 1; row <= 2; row++) {
+               var $e = $();
+
+               for (var i = offset; i <= lastOffset; i++) {
+                  $e = $e.add(sprintf('#row-%d .position-%d', row, i));
+               }
+
+               $e.addClass('error');
+            }
+         }
+      }, function() {
+         $('#base-2 span.active').remove();
+
+         $('.digit').removeClass('hidden');
+         $('.digit').removeClass('error');
+      });
+
+      $('#type').text(address.getType());
+      $('#scope').text(address.getScope());
+
+      var parsed1 = address.parsedAddress.join(':');
       var parsed2 = diff(original, parsed1);
 
-      var correct1 = address.correct_form();
+      var correct1 = address.correctForm();
       var correct2 = diff(original, correct1);
 
-      var canonical1 = address.canonical_form();
+      var canonical1 = address.canonicalForm();
       var canonical2 = diff(original, canonical1);
 
       $('#parsed').html(v6.Address.group(parsed1));
@@ -182,20 +222,8 @@ function update_address() {
       $('#base-16').text(address.bigInteger().toString(16));
       $('#base-10').text(address.bigInteger().toString());
 
-      var zeropad = address.zeroPad();
-      var zeropad_array = [zeropad.slice(0, 64), zeropad.slice(64, 128)];
-
-      var base2_array = [];
-
-      for (var i = 0; i < 8; i++) {
-         base2_array.push(sprintf('<span class="hover-group group-%d">%s</span>',
-               i, zeropad.slice(i * 16, (i * 16) + 16)
-            .replace(/(0+)/g, '<span class="zero">$1</span>')));
-      }
-
-      $('#base-2').html(base2_array.slice(0, 4).join('') + '<br />' +
-                        base2_array.slice(4, 8).join(''));
-
+      update_base2(address);
+      update_subnet_select(address);
       update_teredo(address);
       update_arin_json(address);
    } else {
@@ -206,8 +234,8 @@ function update_address() {
 
       $('#original').text(original);
 
-      if (address.parse_error) {
-         $('#parsed').html(address.parse_error);
+      if (address.parseError) {
+         $('#parsed').html(address.parseError);
       }
 
       $('.error').show();
@@ -223,15 +251,49 @@ function update_address() {
    update_diff();
 }
 
+function update_base2(address) {
+   var zeropad = address.binaryZeroPad();
+   var zeropad_array = [zeropad.slice(0, 64), zeropad.slice(64, 128)];
+
+   var base2_array = [];
+
+   for (var i = 0; i < 8; i++) {
+      base2_array.push(sprintf('<span class="hover-group group-%d">%s</span>',
+         i, v6.Address.spanAll(zeropad.slice(i * 16, (i * 16) + 16), i * 16)));
+   }
+
+   $('#base-2').html(sprintf('<div id="row-1">%s</div>' +
+      '<div id="row-2">%s</div>',
+      base2_array.slice(0, 4).join(''),
+      base2_array.slice(4, 8).join('')));
+}
+
+function update_subnet_select(address) {
+   $('#subnet-select').html('');
+
+   for (var i = address.subnetMask; i <= 128; i++) {
+      $('#subnet-select').append(sprintf('<option value="%d">%d</option>', i, i));
+   }
+
+   $('#subnet-select').unbind();
+
+   $('#subnet-select').bind('keyup mouseup change', function() {
+      $('#subnets').text(address.possibleAddresses(parseInt($('#subnet-select').val())));
+   });
+
+   $('#subnet-select').change();
+}
+
 function update_teredo(address) {
    if (address.isTeredo()) {
       var teredoData = address.teredo();
 
       $('#teredo .prefix').text(teredoData.prefix);
-      $('#teredo .server-v4').text(teredoData.server_v4);
-      $('#teredo .client-v4').text(teredoData.client_v4);
-      $('#teredo .udp-port').text(teredoData.udp_port);
-      $('#teredo .flags').text(teredoData.flags);
+      $('#teredo .server-v4').text(teredoData.server4);
+      $('#teredo .client-v4').text(teredoData.client4);
+      $('#teredo .udp-port').text(teredoData.udpPort);
+      $('#teredo .flags').html(sprintf('<span class="hover-group group-4">%s</span>',
+         v6.Address.spanAllZeroes(teredoData.flags)));
 
       $('#not-teredo').hide();
       $('#teredo').show();
@@ -242,7 +304,7 @@ function update_teredo(address) {
 }
 
 function update_arin_json(address) {
-   $.getJSON('/arin/ip/' + address.correct_form(), function getArinJson(data) {
+   $.getJSON('/arin/ip/' + address.correctForm(), function getArinJson(data) {
       format_arin(data.net);
 
       $('#arin-error').hide();
@@ -258,6 +320,8 @@ function update_arin_json(address) {
 }
 
 function add_hover_functions() {
+   $('.hover-group').unbind();
+
    $('.hover-group').hover(function hoverIn(e) {
       var classes = $(this).attr('class').split(' ');
 

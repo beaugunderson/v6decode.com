@@ -35,6 +35,7 @@
    <a href="#address=0001:0002:0003:0004:0005:0006:0007:0008">Canonical</a> |
    <a href="#address=2608::3:5">Correct</a> |
    <a href="#address=::192.168.0.1">IPv4</a> |
+   <a href="#address=abcd:ef01::/64">Subnet</a> |
    <a href="#address=2001:4860:4001:803::1011">Google</a>
   </div>
 
@@ -50,6 +51,8 @@
     <dt class="error">Error</dt> <dd class="error" id="error"></dd>
     <dt><a href="http://tools.ietf.org/html/rfc5952#page-10" title="À la 'A Recommendation for IPv6 Text Representation'">Correct</a></dt> <dd class="output" id="correct"></dd>
     <dt>Canonical</dt> <dd class="output" id="canonical"></dd>
+    <dt>Type</dt> <dd class="output" id="type"></dd>
+    <dt>Scope</dt> <dd class="output" id="scope"></dd>
    </dl>
 
    <h2>Parser information</h2>
@@ -60,8 +63,8 @@
     <dt>As parsed</dt>
      <dd class="output no-diff" id="parsed"></dd>
      <dd class="output diff" id="parsed-diff"></dd>
-    <dt>Subnet string</dt> <dd class="output" id="subnet-string"></dd>
-    <dt>Percent string</dt> <dd class="output" id="percent-string"></dd>
+    <dt>Subnet</dt> <dd class="output" id="subnet"></dd>
+    <dt>Zone</dt> <dd class="output" id="zone"></dd>
    </dl>
 
    <h2>Address forms</h2>
@@ -70,11 +73,11 @@
     <dt>Correct</dt>
      <dd class="output no-diff" id="correct-form"></dd>
      <dd class="output diff" id="correct-form-diff"></dd>
-    <dt>IPv4</dt>
-     <dd class="output" id="ipv4-form"></dd>
     <dt>Canonical</dt>
      <dd class="output no-diff" id="canonical-form"></dd>
      <dd class="output diff" id="canonical-form-diff"></dd>
+    <dt>IPv4</dt>
+     <dd class="output" id="ipv4-form"></dd>
     <dt>Decimal</dt>
      <dd class="output" id="decimal-groups"></dd>
    </dl>
@@ -89,6 +92,16 @@
    </dl>
 
    <h2>Additional information</h2>
+
+   <dl>
+    <dt>Subnets of size</dt>
+
+    <dd>
+     <select id="subnet-select"></select>
+
+     <span class="output" id="subnets">
+    </dd>
+   </dl>
 
    <dl>
     <dt>Teredo</dt>

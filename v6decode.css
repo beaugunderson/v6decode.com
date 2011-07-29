@@ -5,7 +5,7 @@
 }
 
 body {
-  padding: 1em 10em;
+  padding: 1em 8em;
   line-height: 1.3em;
 }
 
@@ -22,6 +22,10 @@ h2 {
 a {
   text-decoration: none;
   color: #2daebf;
+}
+
+.hidden {
+  display: none;
 }
 
 span.zero {
@@ -60,6 +64,7 @@ label {
   display: none;
 }
 
+span.active,
 .hover-group,
 .parse-error {
   border-radius: 3px;
@@ -71,8 +76,13 @@ label {
   margin-right: -2px;
 }
 
+span.active,
 .hover-group.active {
   background-color: #b2e6ed;
+}
+
+span.active.error {
+  background-color: #ffb3b3;
 }
 
 .diff-visible .diff {
@@ -90,6 +100,15 @@ label {
 
 .error {
   display: none;
+}
+
+.error .zero {
+  color: red;
+}
+
+.digit.error {
+  display: inline;
+  color: red;
 }
 
 #arin-error {
