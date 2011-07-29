@@ -6,7 +6,7 @@
 
   <link rel="stylesheet" type="text/css" href="v6decode.css" />
 
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 
   <script type="text/javascript" src="lib/browser/jquery.ba-bbq.min.js"></script>
 
@@ -30,35 +30,36 @@
   </div>
 
   <div id="examples">
-   Examples: <a href="#address=2001::ce49:7601:e866:efff:62c3:fffe">Teredo</a> | <a href="#address=000a:000b:000c:000d:0000:0000:0000:0000">Canonical</a> | <a href="#address=2608::3:5">Correct</a> | <a href="#address=2001:4860:4001:803::1011">Google</a>
+   Examples:
+   <a href="#address=2001::ce49:7601:e866:efff:62c3:fffe">Teredo</a> |
+   <a href="#address=0001:0002:0003:0004:0005:0006:0007:0008">Canonical</a> |
+   <a href="#address=2608::3:5">Correct</a> |
+   <a href="#address=::192.168.0.1">IPv4</a> |
+   <a href="#address=2001:4860:4001:803::1011">Google</a>
   </div>
 
   <div id="settings">
    <label><input type="checkbox" id="show-diff" /> Show diff?</label>
-   <label><input type="checkbox" id="show-hover" /> Show hover groups?</label>
-   <label><input type="checkbox" id="hide-arin" /> Hide ARIN?</label>
   </div>
 
   <div class="clear-fix">
    <h2>Flags</h2>
 
    <dl>
-    <dt>Valid?</dt> <dd class="output" id="valid"></dd>
+    <dt>Valid</dt> <dd class="output" id="valid"></dd>
     <dt class="error">Error</dt> <dd class="error" id="error"></dd>
-    <dt><a href="http://tools.ietf.org/html/rfc5952#page-10" title="À la 'A Recommendation for IPv6 Text Representation'">Correct?</a></dt> <dd class="output" id="correct"></dd>
-    <dt>Canonical?</dt> <dd class="output" id="canonical"></dd>
+    <dt><a href="http://tools.ietf.org/html/rfc5952#page-10" title="À la 'A Recommendation for IPv6 Text Representation'">Correct</a></dt> <dd class="output" id="correct"></dd>
+    <dt>Canonical</dt> <dd class="output" id="canonical"></dd>
    </dl>
 
    <h2>Parser information</h2>
 
    <dl>
     <dt>Original</dt>
-     <dd class="output no-hover" id="original"></dd>
-     <dd class="output hover" id="original-hover"></dd>
+     <dd class="output" id="original"></dd>
     <dt>As parsed</dt>
      <dd class="output no-diff" id="parsed"></dd>
      <dd class="output diff" id="parsed-diff"></dd>
-     <dd class="output hover" id="parsed-hover"></dd>
     <dt>Subnet string</dt> <dd class="output" id="subnet-string"></dd>
     <dt>Percent string</dt> <dd class="output" id="percent-string"></dd>
    </dl>
@@ -69,17 +70,13 @@
     <dt>Correct</dt>
      <dd class="output no-diff" id="correct-form"></dd>
      <dd class="output diff" id="correct-form-diff"></dd>
-     <dd class="output hover" id="correct-form-hover"></dd>
     <dt>IPv4</dt>
-     <dd class="output no-hover" id="ipv4-form"></dd>
-     <dd class="output hover" id="ipv4-form-hover"></dd>
+     <dd class="output" id="ipv4-form"></dd>
     <dt>Canonical</dt>
      <dd class="output no-diff" id="canonical-form"></dd>
      <dd class="output diff" id="canonical-form-diff"></dd>
-     <dd class="output hover" id="canonical-form-hover"></dd>
     <dt>Decimal</dt>
-     <dd class="output no-hover" id="decimal-groups"></dd>
-     <dd class="output hover" id="decimal-groups-hover"></dd>
+     <dd class="output" id="decimal-groups"></dd>
    </dl>
 
    <h2>Numeric forms</h2>
@@ -88,8 +85,7 @@
     <dt>Base 16</dt> <dd class="output" id="base-16"></dd>
     <dt>Base 10</dt> <dd class="output" id="base-10"></dd>
     <dt>Base 2</dt>
-     <dd class="output no-hover" id="base-2"></dd>
-     <dd class="output hover" id="base-2-hover"></dd>
+     <dd class="output" id="base-2"></dd>
    </dl>
 
    <h2>Additional information</h2>
@@ -152,9 +148,9 @@
   </div>
 
   <div id="footer">
-   <a href="mailto:beau@beaugunderson.com">Beau Gunderson</a>, 2011
+   <a href="http://www.beaugunderson.com/">Beau Gunderson</a>, 2011
 
-   <a href="https://github.com/beaugunderson/javascript-ipv6"
+   <a href="http://github.com/beaugunderson/javascript-ipv6"
     class="gitforked-button gitforked-forks gitforked-watchers">Fork</a>
   </div>
  </body>

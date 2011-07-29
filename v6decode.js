@@ -133,30 +133,6 @@ function format_arin(data) {
    }
 }
 
-function span_leading_zeroes_inner(group) {
-   return group.replace(/^(0+)/, '<span class="zero">$1</span>');
-}
-
-function span_leading_zeroes(address) {
-   var groups = address.split(':');
-
-   groups = $.map(groups, function(g, i) {
-      return span_leading_zeroes_inner(g);
-   });
-
-   return groups.join(':');
-}
-
-function add_hover_classes(address) {
-   var groups = address.split(':');
-
-   groups = $.map(groups, function(g, i) {
-      return sprintf('<span class="hover-group group-%d">%s</span>', i, g);
-   });
-
-   return groups.join(':');
-}
-
 // Runs whenever the address changes
 function update_address() {
    var original = $('#address').val();
@@ -176,94 +152,63 @@ function update_address() {
       $('#correct').text(address.isCorrect() ? 'Yes' : 'No');
       $('#canonical').text(address.isCanonical() ? 'Yes' : 'No');
 
-      $('#original').html(span_leading_zeroes(original));
-      $('#original-hover').html(add_hover_classes(original));
+      $('#original').html(v6.Address.group(original));
 
       $('#subnet-string').text(address.subnet_string ? address.subnet_string : 'None');
       $('#percent-string').text(address.percent_string ? address.percent_string : 'None');
 
-      var p = address.parsed_address.join(':');
-      var p2 = diff(original, p);
+      var parsed1 = address.parsed_address.join(':');
+      var parsed2 = diff(original, parsed1);
 
-      $('#parsed').html(span_leading_zeroes(p));
-      $('#parsed-hover').html(add_hover_classes(p));
-      $('#parsed-diff').html(p2);
+      var correct1 = address.correct_form();
+      var correct2 = diff(original, correct1);
 
-      var co = address.correct_form();
-      var co2 = diff(original, co);
+      var canonical1 = address.canonical_form();
+      var canonical2 = diff(original, canonical1);
 
-      $('#correct-form').html(span_leading_zeroes(co));
-      $('#correct-form-hover').html(add_hover_classes(co));
-      $('#correct-form-diff').html(co2);
+      $('#parsed').html(v6.Address.group(parsed1));
+      $('#parsed-diff').html(parsed2);
 
-      var ca = address.canonical_form();
-      var ca2 = diff(original, ca);
+      $('#correct-form').html(v6.Address.group(correct1));
+      $('#correct-form-diff').html(correct2);
 
-      $('#canonical-form').html(span_leading_zeroes(ca));
-      $('#canonical-form-hover').html(add_hover_classes(ca));
-      $('#canonical-form-diff').html(ca2);
+      $('#canonical-form').html(v6.Address.group(canonical1));
+      $('#canonical-form-diff').html(canonical2);
 
-      $('#ipv4-form').html(span_leading_zeroes(address.v4_form()));
-      $('#ipv4-form-hover').html(add_hover_classes(address.v4_form()));
+      $('#ipv4-form').html(v6.Address.group(address.v4_form()));
 
-      $('#decimal-groups').html(span_leading_zeroes(address.decimal()));
-      $('#decimal-groups-hover').html(add_hover_classes(address.decimal()));
+      $('#decimal-groups').html(v6.Address.simpleGroup(address.decimal()));
 
       $('#base-16').text(address.bigInteger().toString(16));
       $('#base-10').text(address.bigInteger().toString());
 
-      var z = [address.zeroPad().slice(0, 64), address.zeroPad().slice(64,128)];
+      var zeropad = address.zeroPad();
+      var zeropad_array = [zeropad.slice(0, 64), zeropad.slice(64, 128)];
 
-      var base2 = z.join('<br />').replace(/(0+)/g, '<span class="zero">$1</span>');
-
-      $('#base-2').html(base2);
-
-      var b2 = address.zeroPad();
-      var b2a = [];
+      var base2_array = [];
 
       for (var i = 0; i < 8; i++) {
-         b2a.push(sprintf('<span class="hover-group group-%d">%s</span>', i, b2.slice(i * 16, (i * 16) + 16)
+         base2_array.push(sprintf('<span class="hover-group group-%d">%s</span>',
+               i, zeropad.slice(i * 16, (i * 16) + 16)
             .replace(/(0+)/g, '<span class="zero">$1</span>')));
       }
 
-      $('#base-2-hover').html(b2a.slice(0, 4).join('') + '<br />' + b2a.slice(4, 8).join(''));
+      $('#base-2').html(base2_array.slice(0, 4).join('') + '<br />' +
+                        base2_array.slice(4, 8).join(''));
 
-      if (address.isTeredo()) {
-         var teredoData = address.teredo();
-
-         $('#teredo .prefix').text(teredoData.prefix);
-         $('#teredo .server-v4').text(teredoData.server_v4);
-         $('#teredo .client-v4').text(teredoData.client_v4);
-         $('#teredo .udp-port').text(teredoData.udp_port);
-         $('#teredo .flags').text(teredoData.flags);
-
-         $('#not-teredo').hide();
-         $('#teredo').show();
-      } else {
-         $('#teredo').hide();
-         $('#not-teredo').show();
-      }
-
-      $.getJSON('/arin/ip/' + address.correct_form(), function getArinJson(data) {
-         format_arin(data.net);
-
-         $('#arin-error').hide();
-         $('#arin').show();
-
-         //$('#arin-raw').text(JSON.stringify(data, '', 3));
-      }).error(function getArinJsonError(result) {
-         if (result.status == 404) {
-            $('#arin-error').text('No ARIN record found for that address.');
-
-            $('#arin').hide();
-            $('#arin-error').show();
-         }
-      });
+      update_teredo(address);
+      update_arin_json(address);
    } else {
       $('#address-wrapper').addClass('red');
       $('#address-wrapper').removeClass('blue');
 
       $('.output').text('');
+
+      $('#original').text(original);
+
+      if (address.parse_error) {
+         $('#parsed').html(address.parse_error);
+      }
 
       $('.error').show();
       $('#error').text(address.error);
@@ -275,56 +220,67 @@ function update_address() {
 
    add_hover_functions();
 
-   update_arin();
-   update_hover();
    update_diff();
+}
+
+function update_teredo(address) {
+   if (address.isTeredo()) {
+      var teredoData = address.teredo();
+
+      $('#teredo .prefix').text(teredoData.prefix);
+      $('#teredo .server-v4').text(teredoData.server_v4);
+      $('#teredo .client-v4').text(teredoData.client_v4);
+      $('#teredo .udp-port').text(teredoData.udp_port);
+      $('#teredo .flags').text(teredoData.flags);
+
+      $('#not-teredo').hide();
+      $('#teredo').show();
+   } else {
+      $('#teredo').hide();
+      $('#not-teredo').show();
+   }
+}
+
+function update_arin_json(address) {
+   $.getJSON('/arin/ip/' + address.correct_form(), function getArinJson(data) {
+      format_arin(data.net);
+
+      $('#arin-error').hide();
+      $('#arin').show();
+   }).error(function getArinJsonError(result) {
+      if (result.status == 404) {
+         $('#arin-error').text('No ARIN record found for that address.');
+
+         $('#arin').hide();
+         $('#arin-error').show();
+      }
+   });
 }
 
 function add_hover_functions() {
    $('.hover-group').hover(function hoverIn(e) {
-      var c = $(this).attr('class');
+      var classes = $(this).attr('class').split(' ');
 
-      var ca = c.split(' ');
-
-      ca = $.map(ca, function(c, i) { return '.' + c; });
+      classes = $.map(classes, function(c, i) {
+         if (c != 'group-v4') {
+            return '.' + c;
+         }
+      });
 
       $('.hover-group').removeClass('active');
 
-      if (ca.length > 1) {
-         c = ca.join('');
-
-         $(c).addClass('active');
+      if (classes.length > 1) {
+         $(classes.join('')).addClass('active');
       }
    }, function hoverOut(e) {
       $('.hover-group').removeClass('active');
    });
 }
 
-function update_arin() {
-   if ($('#hide-arin').is(':checked')) {
-      $('.arin').hide()
-   } else {
-      $('.arin').show()
-   }
-}
-
-function update_hover() {
-   if ($('#show-hover').is(':checked')) {
-      $('body').removeClass('diff-visible');
-      $('body').addClass('hover-visible');
-
-      $('#show-diff').attr('checked', '');
-   } else {
-      $('body').removeClass('hover-visible');
-   }
-}
-
 function update_diff() {
    if ($('#show-diff').is(':checked')) {
       $('body').addClass('diff-visible');
       $('body').removeClass('hover-visible');
-
-      $('#show-hover').attr('checked', '');
 
       $('ins.diff').addClass('visible');
       $('del.diff').show();
@@ -352,20 +308,9 @@ $(function() {
    });
 
    update_from_hash();
-
-   update_arin();
-   update_hover();
    update_diff();
 
-   // Setup the event handlers for the 'Hide ARIN', 'Show diff', and 'Show hover groups' checkboxes
-   $('#show-hover').click(function() {
-      update_hover();
-   });
-
-   $('#hide-arin').click(function() {
-      update_arin();
-   });
-
+   // Setup the event handler for the 'Show diff' checkboxe
    $('#show-diff').click(function() {
       update_diff();
    });

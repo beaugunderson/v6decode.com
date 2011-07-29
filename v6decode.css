@@ -1,4 +1,3 @@
-/* Colors */
 /* General */
 * {
   font-family: Consolas, monospace;
@@ -48,6 +47,10 @@ label {
   margin-bottom: 1em;
 }
 
+.parse-error {
+  background-color: #e33100;
+}
+
 /* Dynamic display */
 .no-diff {
   display: inline;
@@ -57,11 +60,8 @@ label {
   display: none;
 }
 
-.hover {
-  display: none;
-}
-
-.hover-group {
+.hover-group,
+.parse-error {
   border-radius: 3px;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -75,16 +75,11 @@ label {
   background-color: #b2e6ed;
 }
 
-.diff-visible .diff,
-.hover-visible .hover {
+.diff-visible .diff {
   display: inline;
 }
 
-.hover-visible .diff,
-.hover-visible .no-diff,
-.hover-visible .no-hover,
-.diff-visible .no-diff,
-.diff-visible .hover {
+.diff-visible .no-diff {
   display: none;
 }
 
