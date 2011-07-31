@@ -266,6 +266,16 @@ function update_base2(address) {
       '<div id="row-2">%s</div>',
       base2_array.slice(0, 4).join(''),
       base2_array.slice(4, 8).join('')));
+
+   $('#base-2 .hover-group').unbind('click');
+
+   $('#base-2 .hover-group').click(function() {
+      $('.binary-visualizer').remove();
+
+      var group = parseInt($(this).attr('class').match(/group-(\d+)/)[1], 10);
+
+      $('#base-2').append(visualize_binary(address.getBits(group * 16, (group + 1) * 16)));
+   });
 }
 
 function update_subnet_select(address) {
@@ -282,6 +292,35 @@ function update_subnet_select(address) {
    });
 
    $('#subnet-select').change();
+}
+
+function visualize_binary(bigInteger, opt_size) {
+   if (opt_size == undefined) {
+      opt_size = 16;
+   }
+
+   var binary = v6.Address.zeroPad(bigInteger.toString(2), opt_size);
+
+   var powers = [];
+
+   for (var i = binary.length - 1; i >= 0; i--) {
+      powers.push(Math.pow(2, i));
+   }
+
+   var result = '<ul class="binary-visualizer">';
+
+   for (var i = 0; i < binary.length; i++) {
+      result += sprintf('<li><span class="digit binary-%s">%s</span><span class="binary-%s">%d</span></li>',
+         binary[i],
+         binary[i],
+         binary[i],
+         powers[i]);
+   }
+
+   result += sprintf('<li><span class="binary-total">%s</span></li>', bigInteger.toString(10));
+   result += '</ul>';
+
+   return result;
 }
 
 function update_teredo(address) {
@@ -320,7 +359,7 @@ function update_arin_json(address) {
 }
 
 function add_hover_functions() {
-   $('.hover-group').unbind();
+   $('.hover-group').unbind('hover');
 
    $('.hover-group').hover(function hoverIn(e) {
       var classes = $(this).attr('class').split(' ');
@@ -359,20 +398,26 @@ function update_diff() {
 function update_from_hash() {
    var a = $.bbq.getState('address');
 
-   if (a != $('#address').val()) {
+   if (!pageLoaded || a != $('#address').val()) {
       $('#address').val(a);
 
       update_address();
    }
 }
 
+var pageLoaded = false;
+
 $(function() {
    $(window).bind('hashchange', function(e) {
       update_from_hash();
    });
 
+   $('#address').focus();
+
    update_from_hash();
    update_diff();
+
+   pageLoaded = true;
 
    // Setup the event handler for the 'Show diff' checkboxe
    $('#show-diff').click(function() {

@@ -1,9 +1,48 @@
 $main-color: #2daebf;
 
+body {
+   font-size: 13pt;
+}
+
 /* General */
 * {
-  font-family: Consolas, monospace;
+  font-family: "MuseoSlab500", Consolas, monospace;
   font-size: 1em;
+  text-rendering: optimizeSpeed;
+}
+
+ul {
+   list-style: none;
+}
+
+ul.binary-visualizer {
+   margin-top: 1em;
+   margin-bottom: 1em;
+}
+
+ul.binary-visualizer *  {
+   font-family: courier;
+   font-size: 0.95rem;
+   line-height: 0.9rem;
+}
+
+$visualizer-span-width: 40px;
+
+ul.binary-visualizer span {
+   display: inline-block;
+   min-width: $visualizer-span-width;
+}
+
+.binary-total {
+   margin-left: $visualizer-span-width;
+   margin-top: 3px;
+   padding-top: 2px;
+   border-top: 1px solid black;
+}
+
+.output,
+.output * {
+  font-family: Consolas, monospace;
 }
 
 body {
@@ -30,7 +69,8 @@ a {
    display: none;
 }
 
-span.zero {
+span.zero,
+.binary-0 {
   color: #aaa;
 }
 
