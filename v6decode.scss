@@ -140,6 +140,13 @@ span.active.error {
   display: none;
 }
 
+#arin dd,
+#arin dd span,
+#arin dd pre,
+#arin dd a {
+   font-family: Consolas, monospace;
+}
+
 .error {
   display: none;
 }

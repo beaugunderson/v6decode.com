@@ -215,7 +215,7 @@ function update_address() {
       $('#canonical-form').html(v6.Address.group(canonical1));
       $('#canonical-form-diff').html(canonical2);
 
-      $('#ipv4-form').html(v6.Address.group(address.v4_form()));
+      $('#ipv4-form').html(v6.Address.group(address.v4inv6()));
 
       $('#decimal-groups').html(v6.Address.simpleGroup(address.decimal()));
 
