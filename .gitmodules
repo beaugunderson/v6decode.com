@@ -1,0 +1,6 @@
+[submodule "javascript-ipv6"]
+	path = javascript-ipv6
+	url = git://github.com/beaugunderson/javascript-ipv6.git
+[submodule "ipv6"]
+	path = ipv6
+	url = git://github.com/beaugunderson/javascript-ipv6.git
