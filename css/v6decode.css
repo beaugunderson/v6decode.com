@@ -1,9 +1,3 @@
-$main-color: #2daebf;
-
-body {
-   font-size: 13pt;
-}
-
 /* General */
 * {
   font-family: "MuseoSlab500", Consolas, monospace;
@@ -11,33 +5,36 @@ body {
   text-rendering: optimizeSpeed;
 }
 
+::selection {
+  background: #289baa;
+  color: white;
+}
+
 ul {
-   list-style: none;
+  list-style: none;
 }
 
 ul.binary-visualizer {
-   margin-top: 1em;
-   margin-bottom: 1em;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
-ul.binary-visualizer *  {
-   font-family: courier;
-   font-size: 0.95rem;
-   line-height: 0.9rem;
+ul.binary-visualizer * {
+  font-family: courier;
+  font-size: 0.95rem;
+  line-height: 0.9rem;
 }
-
-$visualizer-span-width: 40px;
 
 ul.binary-visualizer span {
-   display: inline-block;
-   min-width: $visualizer-span-width;
+  display: inline-block;
+  min-width: 40px;
 }
 
 .binary-total {
-   margin-left: $visualizer-span-width;
-   margin-top: 3px;
-   padding-top: 2px;
-   border-top: 1px solid black;
+  margin-left: 40px;
+  margin-top: 3px;
+  padding-top: 2px;
+  border-top: 1px solid black;
 }
 
 .output,
@@ -46,6 +43,7 @@ ul.binary-visualizer span {
 }
 
 body {
+  font-size: 13pt;
   padding: 1em 8em;
   line-height: 1.3em;
 }
@@ -62,11 +60,11 @@ h2 {
 
 a {
   text-decoration: none;
-  color: $main-color;
+  color: #2daebf;
 }
 
 .hidden {
-   display: none;
+  display: none;
 }
 
 span.zero,
@@ -98,14 +96,6 @@ label {
 }
 
 /* Dynamic display */
-.no-diff {
-  display: inline;
-}
-
-.diff {
-  display: none;
-}
-
 span.active,
 .hover-group,
 .parse-error {
@@ -120,19 +110,11 @@ span.active,
 
 span.active,
 .hover-group.active {
-  background-color: lighten($main-color, 35);
+  background-color: #b2e6ed;
 }
 
 span.active.error {
-  background-color: lighten(red, 35);
-}
-
-.diff-visible .diff {
-  display: inline;
-}
-
-.diff-visible .no-diff {
-  display: none;
+  background-color: #ffb3b3;
 }
 
 #arin dt,
@@ -144,20 +126,24 @@ span.active.error {
 #arin dd span,
 #arin dd pre,
 #arin dd a {
-   font-family: Consolas, monospace;
+  font-family: Consolas, monospace;
 }
 
 .error {
   display: none;
 }
 
+dd.error {
+  font-family: Consolas, monospace;
+}
+
 .error .zero {
-   color: red;
+  color: red;
 }
 
 .digit.error {
-   display: inline;
-   color: red;
+  display: inline;
+  color: red;
 }
 
 #arin-error {
@@ -184,21 +170,6 @@ span.active.error {
 #wikipedia {
   float: right;
   width: 45%;
-}
-
-/* Diff output */
-ins.diff,
-del.diff {
-  text-decoration: none;
-}
-
-ins.diff.visible {
-  background-color: #81e68e;
-}
-
-del.diff {
-  display: none;
-  background-color: #e88080;
 }
 
 /* Lists */
@@ -240,8 +211,12 @@ dd {
 #address-wrapper input {
   width: 498px;
   font-size: 1.5em;
-  -moz-border-radius: 5px;
+  padding: 5px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
   -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
 }
 
 .awesome {
@@ -256,7 +231,6 @@ dd {
   text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.25);
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   position: relative;
-  cursor: pointer;
 }
 
 .awesome:hover {
@@ -272,7 +246,7 @@ dd {
 }
 
 .blue.awesome {
-  background-color: $main-color;
+  background-color: #2daebf;
 }
 
 .blue.awesome:hover {

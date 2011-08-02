@@ -1,51 +1,4 @@
-// This is a re-implementation of the example given in diff_match_patch;
-// I needed a way to specify a class name for the wrapped text.
-diff_match_patch.prototype.diff_ourHtml = function(diffs) {
-   var html = [];
-   var i = 0;
-
-   var pattern_amp = /&/g;
-   var pattern_lt = /</g;
-   var pattern_gt = />/g;
-   var pattern_para = /\n/g;
-
-   for (var x = 0; x < diffs.length; x++) {
-      var op = diffs[x][0];    // Operation (insert, delete, equal)
-      var data = diffs[x][1];  // Text of change.
-
-      var text = data.replace(pattern_amp, '&amp;').replace(pattern_lt, '&lt;')
-         .replace(pattern_gt, '&gt;').replace(pattern_para, '&para;<br>');
-
-      switch (op) {
-         case DIFF_INSERT:
-            html[x] = '<ins class="diff">' + text + '</ins>';
-            break;
-         case DIFF_DELETE:
-            html[x] = '<del class="diff">' + text + '</del>';
-            break;
-         case DIFF_EQUAL:
-            html[x] = '<span class="diff">' + text + '</span>';
-            break;
-      }
-
-      if (op !== DIFF_DELETE) {
-         i += data.length;
-      }
-   }
-
-   return html.join('');
-};
-
-// A convenience function to diff two addresses (or other text)
-function diff(a, b) {
-   var dmp = new diff_match_patch();
-
-   var d = dmp.diff_main(a, b);
-
-   return dmp.diff_ourHtml(d);
-}
-
-function format_netblock(netblock) {
+function formatNetblock(netblock) {
    var start = netblock.startAddress.$.toLowerCase();
    var end = netblock.endAddress.$.toLowerCase();
 
@@ -66,7 +19,7 @@ function format_netblock(netblock) {
       netblock.type.$));
 }
 
-function format_arin(data) {
+function formatArin(data) {
    $('#arin dt, #arin dd').hide();
    $('#arin dd').text('');
 
@@ -116,7 +69,7 @@ function format_arin(data) {
 
    if (data.netBlocks) {
       $.each(data.netBlocks, function(i, n) {
-         format_netblock(n);
+         formatNetblock(n);
       });
 
       $('#arin .netblocks').show().prev().show();
@@ -134,13 +87,19 @@ function format_arin(data) {
 }
 
 // Runs whenever the address changes
-function update_address() {
-   var original = $('#address').val();
-   var address = new v6.Address(original);
+function updateAddress() {
+   var addressString = $.trim($.bbq.getState('address'));
 
-   $.bbq.pushState({ address: original });
+   $('#address').val(addressString);
 
-   original = original.replace(/[%\/].*/, '');
+   var address;
+   var addressStringMinusSuffix = addressString.replace(/[%\/].*/, '');
+
+   if (/^[01]{128}$/.test(addressString)) {
+      address = v6.Address.fromBigInteger(addressString);
+   } else {
+      address = new v6.Address(addressString);
+   }
 
    if (address.isValid()) {
       $('.error').hide();
@@ -152,7 +111,7 @@ function update_address() {
       $('#correct').text(address.isCorrect() ? 'Yes' : 'No');
       $('#canonical').text(address.isCanonical() ? 'Yes' : 'No');
 
-      $('#original').html(v6.Address.group(original));
+      $('#original').html(v6.Address.group(addressStringMinusSuffix));
 
       $('#subnet').text(address.subnet ? address.subnet : 'None');
       $('#zone').text(address.zone ? address.zone : 'None');
@@ -198,22 +157,12 @@ function update_address() {
       $('#scope').text(address.getScope());
 
       var parsed1 = address.parsedAddress.join(':');
-      var parsed2 = diff(original, parsed1);
-
       var correct1 = address.correctForm();
-      var correct2 = diff(original, correct1);
-
       var canonical1 = address.canonicalForm();
-      var canonical2 = diff(original, canonical1);
 
       $('#parsed').html(v6.Address.group(parsed1));
-      $('#parsed-diff').html(parsed2);
-
       $('#correct-form').html(v6.Address.group(correct1));
-      $('#correct-form-diff').html(correct2);
-
       $('#canonical-form').html(v6.Address.group(canonical1));
-      $('#canonical-form-diff').html(canonical2);
 
       $('#ipv4-form').html(v6.Address.group(address.v4inv6()));
 
@@ -222,17 +171,20 @@ function update_address() {
       $('#base-16').text(address.bigInteger().toString(16));
       $('#base-10').text(address.bigInteger().toString());
 
-      update_base2(address);
-      update_subnet_select(address);
-      update_teredo(address);
-      update_arin_json(address);
+      $('#first-address').html(address.startAddress().link());
+      $('#last-address').html(address.endAddress().link());
+
+      updateBase2(address);
+      updateSubnetSelect(address);
+      updateTeredo(address);
+      updateArinJson(address);
    } else {
       $('#address-wrapper').addClass('red');
       $('#address-wrapper').removeClass('blue');
 
       $('.output').text('');
 
-      $('#original').text(original);
+      $('#original').text(addressStringMinusSuffix);
 
       if (address.parseError) {
          $('#parsed').html(address.parseError);
@@ -246,12 +198,10 @@ function update_address() {
 
    $('body').attr('class', '');
 
-   add_hover_functions();
-
-   update_diff();
+   addHoverBindings();
 }
 
-function update_base2(address) {
+function updateBase2(address) {
    var zeropad = address.binaryZeroPad();
    var zeropad_array = [zeropad.slice(0, 64), zeropad.slice(64, 128)];
 
@@ -274,15 +224,23 @@ function update_base2(address) {
 
       var group = parseInt($(this).attr('class').match(/group-(\d+)/)[1], 10);
 
-      $('#base-2').append(visualize_binary(address.getBits(group * 16, (group + 1) * 16)));
+      $('#base-2').append(visualizeBinary(address.getBits(group * 16, (group + 1) * 16)));
    });
 }
 
-function update_subnet_select(address) {
+function updateSubnetSelect(address) {
    $('#subnet-select').html('');
 
    for (var i = address.subnetMask; i <= 128; i++) {
-      $('#subnet-select').append(sprintf('<option value="%d">%d</option>', i, i));
+      var special = '';
+
+      if (i == 128) {
+         special = ' (an address)';
+      } else if (i == 64) {
+         special = ' (a device)';
+      }
+
+      $('#subnet-select').append(sprintf('<option value="%1$d">%1$d%2$s</option>', i, special));
    }
 
    $('#subnet-select').unbind();
@@ -294,8 +252,8 @@ function update_subnet_select(address) {
    $('#subnet-select').change();
 }
 
-function visualize_binary(bigInteger, opt_size) {
-   if (opt_size == undefined) {
+function visualizeBinary(bigInteger, opt_size) {
+   if (opt_size === undefined) {
       opt_size = 16;
    }
 
@@ -310,20 +268,19 @@ function visualize_binary(bigInteger, opt_size) {
    var result = '<ul class="binary-visualizer">';
 
    for (var i = 0; i < binary.length; i++) {
-      result += sprintf('<li><span class="digit binary-%s">%s</span><span class="binary-%s">%d</span></li>',
-         binary[i],
-         binary[i],
-         binary[i],
-         powers[i]);
+      result += sprintf('<li>' +
+            '<span class="digit binary-%1$s">%1$s</span>' +
+            '<span class="binary-%1$s">%2$s</span>' +
+         '</li>', binary[i], addCommas(String(powers[i])));
    }
 
-   result += sprintf('<li><span class="binary-total">%s</span></li>', bigInteger.toString(10));
+   result += sprintf('<li><span class="binary-total">%s</span></li>', addCommas(bigInteger.toString(10)));
    result += '</ul>';
 
    return result;
 }
 
-function update_teredo(address) {
+function updateTeredo(address) {
    if (address.isTeredo()) {
       var teredoData = address.teredo();
 
@@ -342,9 +299,9 @@ function update_teredo(address) {
    }
 }
 
-function update_arin_json(address) {
+function updateArinJson(address) {
    $.getJSON('/arin/ip/' + address.correctForm(), function getArinJson(data) {
-      format_arin(data.net);
+      formatArin(data.net);
 
       $('#arin-error').hide();
       $('#arin').show();
@@ -358,7 +315,7 @@ function update_arin_json(address) {
    });
 }
 
-function add_hover_functions() {
+function addHoverBindings() {
    $('.hover-group').unbind('hover');
 
    $('.hover-group').hover(function hoverIn(e) {
@@ -380,52 +337,24 @@ function add_hover_functions() {
    });
 }
 
-function update_diff() {
-   if ($('#show-diff').is(':checked')) {
-      $('body').addClass('diff-visible');
-      $('body').removeClass('hover-visible');
+var pushState = _.debounce(function() {
+   var address = $.trim($('#address').val());
 
-      $('ins.diff').addClass('visible');
-      $('del.diff').show();
-   } else {
-      $('body').removeClass('diff-visible');
-
-      $('ins.diff').removeClass('visible');
-      $('del.diff').hide();
+   if ($.bbq.getState('address') != address) {
+      $.bbq.pushState({ 'address': address });
    }
-}
-
-function update_from_hash() {
-   var a = $.bbq.getState('address');
-
-   if (!pageLoaded || a != $('#address').val()) {
-      $('#address').val(a);
-
-      update_address();
-   }
-}
-
-var pageLoaded = false;
+}, 200);
 
 $(function() {
    $(window).bind('hashchange', function(e) {
-      update_from_hash();
+      updateAddress();
    });
 
+   $(window).trigger('hashchange');
+
+   // Focus the address input field
    $('#address').focus();
 
-   update_from_hash();
-   update_diff();
-
-   pageLoaded = true;
-
-   // Setup the event handler for the 'Show diff' checkboxe
-   $('#show-diff').click(function() {
-      update_diff();
-   });
-
    // Make the input textbox update on change and keyup
-   $('#address').bind('change keyup', function() {
-      update_address();
-   });
+   $('#address').bind('change keyup', pushState);
 });

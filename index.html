@@ -4,7 +4,7 @@
  <head>
   <title>IPv6 address information - v6decode.com</title>
 
-  <link rel="stylesheet" type="text/css" href="/v6decode.css" />
+  <link rel="stylesheet" type="text/css" href="/css/v6decode.css" />
 
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
   <script type="text/javascript" src="http://gitforked.com/api/1.1/button.js"></script>
@@ -14,11 +14,11 @@
   <script type="text/javascript" src="/lib/jsbn2.js"></script>
   <script type="text/javascript" src="/lib/json2.js"></script>
   <script type="text/javascript" src="/lib/sprintf.js"></script>
-  <script type="text/javascript" src="/lib/diff_match_patch.js"></script>
+  <script type="text/javascript" src="/lib/underscore-min.js"></script>
 
   <script type="text/javascript" src="/ipv6/ipv6.js"></script>
 
-  <script type="text/javascript" src="/v6decode.js"></script>
+  <script type="text/javascript" src="/js/v6decode.js"></script>
 
   <link rel="stylesheet" type="text/css" href="http://www.beaugunderson.com/fonts/museo-300/stylesheet.css" />
   <link rel="stylesheet" type="text/css" href="http://www.beaugunderson.com/fonts/museo-slab-500/stylesheet.css" />
@@ -33,16 +33,13 @@
 
   <div id="examples">
    Examples:
+
    <a href="/#address=2001::ce49:7601:e866:efff:62c3:fffe">Teredo</a> |
    <a href="/#address=0001:0002:0003:0004:0005:0006:0007:0008">Canonical</a> |
    <a href="/#address=2608::3:5">Correct</a> |
    <a href="/#address=::ffff:192.168.0.1">IPv4</a> |
    <a href="/#address=abcd:ef01::/64">Subnet</a> |
    <a href="/#address=2001:4860:4001:803::1011">Google</a>
-  </div>
-
-  <div id="settings">
-   <label><input type="checkbox" id="show-diff" /> Show diff?</label>
   </div>
 
   <div class="clear-fix">
@@ -63,8 +60,7 @@
     <dt>Original</dt>
      <dd class="output" id="original"></dd>
     <dt>As parsed</dt>
-     <dd class="output no-diff" id="parsed"></dd>
-     <dd class="output diff" id="parsed-diff"></dd>
+     <dd class="output" id="parsed"></dd>
     <dt>Subnet</dt> <dd class="output" id="subnet"></dd>
     <dt>Zone</dt> <dd class="output" id="zone"></dd>
    </dl>
@@ -73,11 +69,9 @@
 
    <dl>
     <dt>Correct</dt>
-     <dd class="output no-diff" id="correct-form"></dd>
-     <dd class="output diff" id="correct-form-diff"></dd>
+     <dd class="output" id="correct-form"></dd>
     <dt>Canonical</dt>
-     <dd class="output no-diff" id="canonical-form"></dd>
-     <dd class="output diff" id="canonical-form-diff"></dd>
+     <dd class="output" id="canonical-form"></dd>
     <dt>IPv4</dt>
      <dd class="output" id="ipv4-form"></dd>
     <dt>Decimal</dt>
@@ -96,19 +90,32 @@
    <h2>Additional information</h2>
 
    <dl>
-    <dt>Subnets of size</dt>
+    <dt>Subnets</dt>
 
     <dd>
-     <select id="subnet-select"></select>
+     <dl>
+      <dt>Size <a id="minimum-size" href="#"></a> <select id="subnet-select"></select> <a id="maximum-size" href="#"></a></dt>
 
-     <span class="output" id="subnets">
+      <dd class="output" id="subnets"></dd>
+     </dl>
+    </dd>
+
+    <dt>Address range</dt>
+
+    <dd>
+     <dl>
+      <dt>First address</dt> <dd class="output" id="first-address"></dd>
+
+      <dt>Last address</dt> <dd class="output" id="last-address"></dd>
+     </dl>
     </dd>
    </dl>
 
    <dl>
     <dt>Teredo</dt>
-    <dd id="teredo"><dl class="output">
-     <dl>
+
+    <dd id="teredo">
+     <dl class="output">
       <dt>Prefix</dt> <dd class="prefix"></dd>
       <dt>Server v4</dt> <dd class="server-v4"></dd>
       <dt>Client v4</dt> <dd class="client-v4"></dd>
@@ -116,6 +123,7 @@
       <dt>Flags</dt> <dd class="flags"></dd>
      </dl>
     </dd>
+
     <dd id="not-teredo">
      Not a Teredo address.
     </dd>
@@ -123,7 +131,7 @@
 
    <dl class="arin">
     <dt>ARIN lookup</dt>
-    <dd id="arin-error">No ARIN information found for this address</dd>
+
     <dd id="arin">
      <dl>
       <dt>Name</dt> <dd class="name"></dd>
@@ -139,6 +147,8 @@
       <dt>Netblocks</dt> <dd class="netblocks"></dd>
      </dl>
     </dd>
+
+    <dd id="arin-error">No ARIN information found for this address</dd>
    </dl>
   </div>
 
