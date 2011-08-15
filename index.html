@@ -34,11 +34,11 @@
   <div id="examples">
    Examples:
 
-   <a href="/#address=2001::ce49:7601:e866:efff:62c3:fffe">Teredo</a> |
-   <a href="/#address=0001:0002:0003:0004:0005:0006:0007:0008">Canonical</a> |
-   <a href="/#address=2608::3:5">Correct</a> |
-   <a href="/#address=::ffff:192.168.0.1">IPv4</a> |
-   <a href="/#address=abcd:ef01::/64">Subnet</a> |
+   <a href="/#address=2001::ce49:7601:e866:efff:62c3:fffe">Teredo</a> &bull;
+   <a href="/#address=0001:0002:0003:0004:0005:0006:0007:0008">Canonical</a> &bull;
+   <a href="/#address=2608::3:5">Correct</a> &bull;
+   <a href="/#address=::ffff:192.168.0.1">IPv4</a> &bull;
+   <a href="/#address=abcd:ef01::/64">Subnet</a> &bull;
    <a href="/#address=2001:4860:4001:803::1011">Google</a>
   </div>
 
@@ -87,6 +87,13 @@
      <dd class="output" id="base-2"></dd>
    </dl>
 
+   <h2>Helper forms</h2>
+
+   <dl>
+    <dt>Link</dt> <dd class="output" id="link-form"></dd>
+    <dt>Microsoft UNC</dt> <dd class="output" id="microsoft-form"></dd>
+   </dl>
+
    <h2>Additional information</h2>
 
    <dl>
@@ -115,12 +122,30 @@
     <dt>Teredo</dt>
 
     <dd id="teredo">
-     <dl class="output">
-      <dt>Prefix</dt> <dd class="prefix"></dd>
-      <dt>Server v4</dt> <dd class="server-v4"></dd>
-      <dt>Client v4</dt> <dd class="client-v4"></dd>
-      <dt>UDP port</dt> <dd class="udp-port"></dd>
-      <dt>Flags</dt> <dd class="flags"></dd>
+     <dl>
+      <dt>Prefix</dt> <dd class="prefix hover-group" data-hover=".group-0, .group-1"></dd>
+      <dt>Server v4</dt> <dd class="server-v4 hover-group" data-hover=".group-2, .group-3"></dd>
+      <dt>Client v4</dt> <dd class="client-v4 hover-group" data-hover=".group-6, .group-7"></dd>
+      <dt>UDP port</dt> <dd class="udp-port hover-group" data-hover=".group-5"></dd>
+      <dt>Flags</dt>
+
+      <dd id="teredo-flags">
+       <dl>
+        <dt>Raw</dt> <dd class="flags"></dd>
+        <dt>Cone NAT</dt> <dd class="cone-nat hover-group" data-hover=".position-64"></dd>
+       </dl>
+      </dd>
+
+      <dt>Microsoft flags</dt>
+
+      <dd id="microsoft-flags">
+       <dl>
+        <dt>Reserved</dt> <dd class="ms-reserved hover-group" data-hover=".position-65"></dd>
+        <dt>Universal/Local</dt> <dd class="ms-universal-local hover-group" data-hover=".position-70"></dd>
+        <dt>Group/Individual</dt> <dd class="ms-group-individual hover-group" data-hover=".position-71"></dd>
+        <dt>Nonce</dt> <dd class="ms-nonce hover-group" data-hover='[".position-66, .position-67, .position-68, .position-69", ".position-72, .position-73, .position-74, .position-75, .position-76, .position-77, .position-78, .position-79"]'></dd>
+       </dl>
+      </dd>
      </dl>
     </dd>
 

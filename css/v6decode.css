@@ -72,6 +72,10 @@ span.zero,
   color: #aaa;
 }
 
+.active span.zero {
+  color: #666;
+}
+
 pre {
   margin: 0;
   padding: 0;

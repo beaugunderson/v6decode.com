@@ -2,8 +2,8 @@ function formatNetblock(netblock) {
    var start = netblock.startAddress.$.toLowerCase();
    var end = netblock.endAddress.$.toLowerCase();
 
-   start = sprintf('<a href="#address=%s">%s</a>', start, start);
-   end = sprintf('<a href="#address=%s">%s</a>', end, end);
+   start = sprintf('<a href="#address=%1$s">%1$s</a>', start);
+   end = sprintf('<a href="#address=%1$s">%1$s</a>', end);
 
    $('#arin .netblocks').append(sprintf('<dl>' +
       '<dt>CIDR length</dt> <dd>%s</dd>' +
@@ -82,7 +82,8 @@ function formatArin(data) {
          return c.$;
       });
 
-      $('#arin .comment').html(sprintf('<pre>%s</pre>', comment.join('\n'))).show().prev().show();
+      $('#arin .comment').html(sprintf('<pre>%s</pre>',
+         comment.join('\n'))).show().prev().show();
    }
 }
 
@@ -90,13 +91,17 @@ function formatArin(data) {
 function updateAddress() {
    var addressString = $.trim($.bbq.getState('address'));
 
-   $('#address').val(addressString);
+   // Prevent moving the cursor when editing the address from the middle
+   if ($('#address').val() != addressString) {
+      $('#address').val(addressString);
+   }
 
    var address;
    var addressStringMinusSuffix = addressString.replace(/[%\/].*/, '');
 
    if (/^[01]{128}$/.test(addressString)) {
-      address = v6.Address.fromBigInteger(addressString);
+      address = v6.Address.fromBigInteger(new BigInteger(addressString, 2));
+      addressStringMinusSuffix = address.parsedAddress.join(':');
    } else {
       address = new v6.Address(addressString);
    }
@@ -156,13 +161,13 @@ function updateAddress() {
       $('#type').text(address.getType());
       $('#scope').text(address.getScope());
 
-      var parsed1 = address.parsedAddress.join(':');
-      var correct1 = address.correctForm();
-      var canonical1 = address.canonicalForm();
+      var parsed = address.parsedAddress.join(':');
+      var correct = address.correctForm();
+      var canonical = address.canonicalForm();
 
-      $('#parsed').html(v6.Address.group(parsed1));
-      $('#correct-form').html(v6.Address.group(correct1));
-      $('#canonical-form').html(v6.Address.group(canonical1));
+      $('#parsed').html(v6.Address.group(parsed));
+      $('#correct-form').html(v6.Address.group(correct));
+      $('#canonical-form').html(v6.Address.group(canonical));
 
       $('#ipv4-form').html(v6.Address.group(address.v4inv6()));
 
@@ -170,6 +175,9 @@ function updateAddress() {
 
       $('#base-16').text(address.bigInteger().toString(16));
       $('#base-10').text(address.bigInteger().toString());
+
+      $('#link-form').html(sprintf('<a href="%1$s">%1$s</a>', address.href()));
+      $('#microsoft-form').text(address.microsoftTranscription());
 
       $('#first-address').html(address.startAddress().link());
       $('#last-address').html(address.endAddress().link());
@@ -203,19 +211,18 @@ function updateAddress() {
 
 function updateBase2(address) {
    var zeropad = address.binaryZeroPad();
-   var zeropad_array = [zeropad.slice(0, 64), zeropad.slice(64, 128)];
 
-   var base2_array = [];
+   var baseTwoArray = [];
 
    for (var i = 0; i < 8; i++) {
-      base2_array.push(sprintf('<span class="hover-group group-%d">%s</span>',
+      baseTwoArray.push(sprintf('<span class="hover-group group-%d">%s</span>',
          i, v6.Address.spanAll(zeropad.slice(i * 16, (i * 16) + 16), i * 16)));
    }
 
    $('#base-2').html(sprintf('<div id="row-1">%s</div>' +
       '<div id="row-2">%s</div>',
-      base2_array.slice(0, 4).join(''),
-      base2_array.slice(4, 8).join('')));
+      baseTwoArray.slice(0, 4).join(''),
+      baseTwoArray.slice(4, 8).join('')));
 
    $('#base-2 .hover-group').unbind('click');
 
@@ -291,6 +298,13 @@ function updateTeredo(address) {
       $('#teredo .flags').html(sprintf('<span class="hover-group group-4">%s</span>',
          v6.Address.spanAllZeroes(teredoData.flags)));
 
+      $('#teredo .cone-nat').text(teredoData.coneNat ? 'Yes' : 'No');
+
+      $('#teredo .ms-reserved').text(teredoData.microsoft.reserved ? 'Yes' : 'No');
+      $('#teredo .ms-universal-local').text(teredoData.microsoft.universalLocal ? 'Local' : 'Universal');
+      $('#teredo .ms-group-individual').text(teredoData.microsoft.groupIndividual ? 'Individual' : 'Group');
+      $('#teredo .ms-nonce').text(teredoData.microsoft.nonce);
+
       $('#not-teredo').hide();
       $('#teredo').show();
    } else {
@@ -319,21 +333,36 @@ function addHoverBindings() {
    $('.hover-group').unbind('hover');
 
    $('.hover-group').hover(function hoverIn(e) {
-      var classes = $(this).attr('class').split(' ');
-
-      classes = $.map(classes, function(c, i) {
+      var classes = $.map($(this).attr('class').split(' '), function(c, i) {
          if (c != 'group-v4') {
             return '.' + c;
          }
       });
 
-      $('.hover-group').removeClass('active');
+      var hoverClasses = $(this).data('hover');
 
-      if (classes.length > 1) {
-         $(classes.join('')).addClass('active');
+      console.log(hoverClasses);
+
+      $('.hover-group, .digit').removeClass('active');
+
+      if (hoverClasses !== undefined) {
+         $(this).addClass('active');
+
+         if (typeof hoverClasses === "string") {
+            $(hoverClasses).addClass('active');
+         } else {
+            for (var i = 0; i < hoverClasses.length; i++) {
+               $(hoverClasses[i]).wrapAll('<span class="active wrapped" />');
+            }
+         }
+      } else {
+         if (classes.length > 1) {
+            $(classes.join('')).addClass('active');
+         }
       }
    }, function hoverOut(e) {
-      $('.hover-group').removeClass('active');
+      $('.hover-group, .digit').removeClass('active');
+      $('.wrapped > *').unwrap();
    });
 }
 
