@@ -124,10 +124,14 @@ function updateAddress() {
       $('#subnet').unbind();
 
       $('#subnet').hover(function() {
-         for (var row = 1; row <= 2; row++) {
-            var $e = $();
+         var row;
+         var $e;
+         var i;
 
-            for (var i = 0; i < address.subnetMask; i++) {
+         for (row = 1; row <= 2; row++) {
+            $e = $();
+
+            for (i = 0; i < address.subnetMask; i++) {
                $e = $e.add(sprintf('#row-%d .position-%d', row, i));
             }
 
@@ -141,10 +145,10 @@ function updateAddress() {
          var lastOffset = address.subnetMask + bits.lastIndexOf('1');
 
          if (offset >= address.subnetMask) {
-            for (var row = 1; row <= 2; row++) {
-               var $e = $();
+            for (row = 1; row <= 2; row++) {
+               $e = $();
 
-               for (var i = offset; i <= lastOffset; i++) {
+               for (i = offset; i <= lastOffset; i++) {
                   $e = $e.add(sprintf('#row-%d .position-%d', row, i));
                }
 
@@ -211,10 +215,10 @@ function updateAddress() {
 
 function updateBase2(address) {
    var zeropad = address.binaryZeroPad();
-
    var baseTwoArray = [];
+   var i;
 
-   for (var i = 0; i < 8; i++) {
+   for (i = 0; i < 8; i++) {
       baseTwoArray.push(sprintf('<span class="hover-group group-%d">%s</span>',
          i, v6.Address.spanAll(zeropad.slice(i * 16, (i * 16) + 16), i * 16)));
    }
@@ -236,9 +240,11 @@ function updateBase2(address) {
 }
 
 function updateSubnetSelect(address) {
+   var i;
+
    $('#subnet-select').html('');
 
-   for (var i = address.subnetMask; i <= 128; i++) {
+   for (i = address.subnetMask; i <= 128; i++) {
       var special = '';
 
       if (i == 128) {
@@ -253,7 +259,7 @@ function updateSubnetSelect(address) {
    $('#subnet-select').unbind();
 
    $('#subnet-select').bind('keyup mouseup change', function() {
-      $('#subnets').text(address.possibleAddresses(parseInt($('#subnet-select').val())));
+      $('#subnets').text(address.possibleAddresses(parseInt($('#subnet-select').val(), 10)));
    });
 
    $('#subnet-select').change();
@@ -265,16 +271,16 @@ function visualizeBinary(bigInteger, opt_size) {
    }
 
    var binary = v6.Address.zeroPad(bigInteger.toString(2), opt_size);
-
    var powers = [];
+   var i;
 
-   for (var i = binary.length - 1; i >= 0; i--) {
+   for (i = binary.length - 1; i >= 0; i--) {
       powers.push(Math.pow(2, i));
    }
 
    var result = '<ul class="binary-visualizer">';
 
-   for (var i = 0; i < binary.length; i++) {
+   for (i = 0; i < binary.length; i++) {
       result += sprintf('<li>' +
             '<span class="digit binary-%1$s">%1$s</span>' +
             '<span class="binary-%1$s">%2$s</span>' +
@@ -351,7 +357,9 @@ function addHoverBindings() {
          if (typeof hoverClasses === "string") {
             $(hoverClasses).addClass('active');
          } else {
-            for (var i = 0; i < hoverClasses.length; i++) {
+            var i;
+
+            for (i = 0; i < hoverClasses.length; i++) {
                $(hoverClasses[i]).wrapAll('<span class="active wrapped" />');
             }
          }
