@@ -27,11 +27,12 @@ ul.binary-visualizer *  {
   line-height: 0.9rem;
 }
 
-$visualizer-span-width: 40px;
+$visualizer-span-width: 80px;
 
 ul.binary-visualizer span {
   display: inline-block;
   min-width: $visualizer-span-width;
+  text-align: right;
 }
 
 .binary-total {
@@ -39,6 +40,7 @@ ul.binary-visualizer span {
   margin-top: 3px;
   padding-top: 2px;
   border-top: 1px solid black;
+  text-align: right;
 }
 
 .output,
@@ -92,7 +94,15 @@ label {
 #examples {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
+}
+
+#thanks {
+  display: none;
+  text-align: center;
+  font-size: 0.8em;
+  margin-top: 0;
+  margin-bottom: 0.5em;
 }
 
 #settings {
@@ -220,6 +230,8 @@ dd {
   width: 498px;
   font-size: 1.5em;
   padding: 5px;
+
+  text-align: center;
 
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;

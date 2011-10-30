@@ -19,6 +19,32 @@ function formatNetblock(netblock) {
       netblock.type.$));
 }
 
+function updateAddressFromRemoteAddress(options) {
+   $.get('/ip.py').success(function(d, statusText, xhr) {
+      if (statusText == 'success') {
+         var addressString = xhr.getResponseHeader('x-address');
+
+         var address = new v6.Address(addressString);
+
+         if (address.isValid()) {
+            thankUser(address.correctForm());
+
+            if (options.setAddress) {
+               $.bbq.pushState({
+                  'address': addressString
+               });
+            }
+         }
+      }
+   });
+}
+
+function thankUser(addressString) {
+   $('#thanks').show();
+
+   $('#user-address').attr('href', sprintf('/#address=%s', addressString));
+}
+
 function formatArin(data) {
    $('#arin dt, #arin dd').hide();
    $('#arin dd').text('');
@@ -87,9 +113,22 @@ function formatArin(data) {
    }
 }
 
+var loaded = false;
+
 // Runs whenever the address changes
 function updateAddress() {
    var addressString = $.trim($.bbq.getState('address'));
+
+   if (addressString == "" &&
+      loaded == false) {
+      updateAddressFromRemoteAddress({ setAddress: true });
+
+      return;
+   }
+
+   updateAddressFromRemoteAddress({ setAddress: false });
+
+   loaded = true;
 
    // Prevent moving the cursor when editing the address from the middle
    if ($('#address').val() != addressString) {
@@ -180,6 +219,7 @@ function updateAddress() {
       $('#base-16').text(address.bigInteger().toString(16));
       $('#base-10').text(address.bigInteger().toString());
 
+      $('#reverse-form').text(address.reverseForm());
       $('#link-form').html(sprintf('<a href="%1$s">%1$s</a>', address.href()));
       $('#microsoft-form').text(address.microsoftTranscription());
 
@@ -281,9 +321,10 @@ function visualizeBinary(bigInteger, opt_size) {
    var result = '<ul class="binary-visualizer">';
 
    for (i = 0; i < binary.length; i++) {
-      result += sprintf('<li>' +
-            '<span class="digit binary-%1$s">%1$s</span>' +
-            '<span class="binary-%1$s">%2$s</span>' +
+      result += sprintf(
+         '<li>' +
+          '<span class="digit binary-%1$s">%1$s</span>' +
+          '<span class="binary-%1$s">%2$s</span>' +
          '</li>', binary[i], addCommas(String(powers[i])));
    }
 
@@ -346,8 +387,6 @@ function addHoverBindings() {
       });
 
       var hoverClasses = $(this).data('hover');
-
-      console.log(hoverClasses);
 
       $('.hover-group, .digit').removeClass('active');
 

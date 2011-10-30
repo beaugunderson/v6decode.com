@@ -26,7 +26,7 @@
  </head>
 
  <body>
-  <h1>IPv6 Address Information</h1>
+  <!-- <h1>IPv6 Address Information</h1> -->
 
   <div class="awesome blue" id="address-wrapper">
    <input type="text" id="address" value="" placeholder="Enter an IPv6 address" />
@@ -42,6 +42,10 @@
    <a href="/#address=abcd:ef01::/64">/64</a> &bull;
    <a href="/#address=ff02::1:2">Multicast</a> &bull;
    <a href="/#address=2001:4860:4001:803::1011">Google</a>
+  </div>
+
+  <div id="thanks">
+   Thanks for visiting this site from an <a id="user-address">IPv6-enabled computer</a>.
   </div>
 
   <div class="clear-fix">
@@ -92,6 +96,7 @@
    <h2>Helper forms</h2>
 
    <dl>
+    <dt>Reverse</dt> <dd class="output" id="reverse-form"></dd>
     <dt>Link</dt> <dd class="output" id="link-form"></dd>
     <dt>Microsoft UNC</dt> <dd class="output" id="microsoft-form"></dd>
    </dl>
