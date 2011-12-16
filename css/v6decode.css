@@ -276,6 +276,15 @@ dd {
   background-color: #872300;
 }
 
+/* Buttons */
+#buttons {
+  text-align: center;
+}
+
+#buttons > * {
+  vertical-align: middle !important;
+}
+
 /* Clearfix */
 .clear-fix:after {
   content: ".";

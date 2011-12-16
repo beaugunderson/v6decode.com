@@ -7,6 +7,14 @@
 
   <link rel="stylesheet" type="text/css" href="/css/v6decode.css" />
 
+  <meta property="og:title" content="IPv6 address information: v6decode.com" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="http://v6decode.com/" />
+  <meta property="og:image" content="" />
+  <meta property="og:site_name" content="v6decode.com" />
+
+  <meta property="fb:admins" content="1576860066" />
+
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
   <script type="text/javascript" src="http://gitforked.com/api/1.1/button.js"></script>
 
@@ -23,10 +31,48 @@
 
   <link rel="stylesheet" type="text/css" href="http://www.beaugunderson.com/fonts/museo-300/stylesheet.css" />
   <link rel="stylesheet" type="text/css" href="http://www.beaugunderson.com/fonts/museo-slab-500/stylesheet.css" />
+
+  <!-- Google+ -->
+  <script>
+   (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+   })();
+  </script>
+
+  <!-- Facebook -->
+  <script>(function(d, s, id) {
+   var js, fjs = d.getElementsByTagName(s)[0];
+   if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=260387767353655";
+    fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+  </script>
+
+  <!-- Google Analytics -->
+  <script>
+   var _gaq = _gaq || [];
+   _gaq.push(['_setAccount', 'UA-372542-11']);
+   _gaq.push(['_setDomainName', 'v6decode.com']);
+   _gaq.push(['_trackPageview']);
+   (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+   })();
+  </script>
  </head>
 
  <body>
-  <!-- <h1>IPv6 Address Information</h1> -->
+  <div id="fb-root"></div>
+
+  <div id="buttons">
+   <g:plusone size="small"></g:plusone>
+
+   <div class="fb-like" data-href="http://v6decode.com/" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
+  </div>
 
   <div class="awesome blue" id="address-wrapper">
    <input type="text" id="address" value="" placeholder="Enter an IPv6 address" />
