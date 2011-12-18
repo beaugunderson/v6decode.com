@@ -20,22 +20,29 @@ function formatNetblock(netblock) {
 }
 
 function updateAddressFromRemoteAddress(options) {
-   $.get('/ip.py').success(function(d, statusText, xhr) {
-      if (statusText == 'success') {
-         var addressString = xhr.getResponseHeader('x-address');
+   $.get('/ip.py', function(d, statusText, xhr) {
+      var addressString = xhr.getResponseHeader('x-address');
 
-         var address = new v6.Address(addressString);
+      var address4 = new v4.Address(addressString);
+      var address6 = new v6.Address(addressString);
 
-         if (address.isValid()) {
-            thankUser(address.correctForm());
+      if (address6.isValid()) {
+         thankUser(address6.correctForm());
 
-            if (options.setAddress) {
-               $.bbq.pushState({
-                  'address': addressString
-               });
-            }
+         if (options.setAddress) {
+            $.bbq.pushState({
+               'address': address6.correctForm()
+            });
+         }
+      } else if (address4.isValid()) {
+         if (options.setAddress) {
+            $.bbq.pushState({
+               'address': '::ffff:' + addressString
+            });
          }
       }
+   }).error(function(d, statusText, xhr) {
+      console.log('AJAX error', d, statusText, xhr);
    });
 }
 

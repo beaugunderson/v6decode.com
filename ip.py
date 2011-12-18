@@ -2,6 +2,6 @@
 
 import os
 
-print "Content-Type: text/xml"
+print "Content-Type: text/plain"
 print "X-Address: %s" % os.environ["REMOTE_ADDR"]
 print
