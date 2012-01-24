@@ -37,7 +37,7 @@ function updateAddressFromRemoteAddress(options) {
       } else if (address4.isValid()) {
          if (options.setAddress) {
             $.bbq.pushState({
-               'address': '::ffff:' + addressString
+               'address': v6.Address.fromAddress4(addressString).v4inv6()
             });
          }
       }
@@ -164,7 +164,7 @@ function updateAddress() {
 
       $('#original').html(v6.Address.group(addressStringMinusSuffix));
 
-      $('#subnet').text(address.subnet ? address.subnet : 'None');
+      $('#subnet').text(address.subnet ? sprintf('%s (%d network bits)', address.subnet, 128 -address.subnetMask) : 'None');
       $('#zone').text(address.zone ? address.zone : 'None');
 
       $('#subnet').unbind();
@@ -219,7 +219,9 @@ function updateAddress() {
       $('#correct-form').html(v6.Address.group(correct));
       $('#canonical-form').html(v6.Address.group(canonical));
 
-      $('#ipv4-form').html(v6.Address.group(address.v4inv6()));
+      var v4 = address.v4inv6();
+
+      $('#ipv4-form').html(v6.Address.group(v4));
 
       $('#decimal-groups').html(v6.Address.simpleGroup(address.decimal()));
 
@@ -230,8 +232,8 @@ function updateAddress() {
       $('#link-form').html(sprintf('<a href="%1$s">%1$s</a>', address.href()));
       $('#microsoft-form').text(address.microsoftTranscription());
 
-      $('#first-address').html(address.startAddress().link());
-      $('#last-address').html(address.endAddress().link());
+      $('#first-address').html(address.startAddress().link({ v4: addressStringMinusSuffix == v4 }));
+      $('#last-address').html(address.endAddress().link({ v4: addressStringMinusSuffix == v4 }));
 
       updateBase2(address);
       updateSubnetSelect(address);
