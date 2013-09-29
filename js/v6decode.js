@@ -235,9 +235,7 @@ function updateAddress() {
       if (address.is4) {
          $('#6to4-form-header,#6to4-form-header + dd').show();
          $('#6to4-form-header + dd').text(address.get6to4().correctForm() + '/16');
-      }
-      else
-      {
+      } else {
          $('#6to4-form-header,#6to4-form-header + dd').hide();
       }
 
