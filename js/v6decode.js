@@ -232,6 +232,15 @@ function updateAddress() {
       $('#link-form').html(sprintf('<a href="%1$s">%1$s</a>', address.href()));
       $('#microsoft-form').text(address.microsoftTranscription());
 
+      if (address.is4) {
+         $('#6to4-form-header,#6to4-form-header + dd').show();
+         $('#6to4-form-header + dd').text(address.get6to4().correctForm() + '/16');
+      }
+      else
+      {
+         $('#6to4-form-header,#6to4-form-header + dd').hide();
+      }
+
       $('#first-address').html(address.startAddress().link({ v4: addressStringMinusSuffix == v4 }));
       $('#last-address').html(address.endAddress().link({ v4: addressStringMinusSuffix == v4 }));
 
