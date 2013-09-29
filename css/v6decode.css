@@ -151,6 +151,13 @@ dd.error {
   font-family: Consolas, monospace;
 }
 
+dd.comment {
+  width: 70%;
+}
+dd.comment pre {
+  white-space: pre-line;
+}
+
 .error .zero {
   color: red;
 }

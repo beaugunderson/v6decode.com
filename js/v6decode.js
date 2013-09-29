@@ -2,12 +2,20 @@
   v6:true, BigInteger:true*/
 var loaded = false;
 
-function formatNetblock(netblock) {
+function formatNetblock(netblock, version) {
   var start = netblock.startAddress.$.toLowerCase();
   var end = netblock.endAddress.$.toLowerCase();
 
-  start = sprintf('<a href="#address=%1$s">%1$s</a>', start);
-  end = sprintf('<a href="#address=%1$s">%1$s</a>', end);
+  var start6 = start;
+  var end6 = end;
+
+  if (version === '4') {
+    start6 = '::ffff:' + start;
+    end6 = '::ffff:' + end;
+  }
+
+  start = sprintf('<a href="#address=%s">%s</a>', start6, start);
+  end = sprintf('<a href="#address=%s">%s</a>', end6, end);
 
   $('#arin .netblocks').append(sprintf('<dl>' +
     '<dt>CIDR length</dt> <dd>%s</dd>' +
@@ -72,21 +80,31 @@ function formatArin(data) {
 
   if (data.startAddress) {
     var start = data.startAddress.$.toLowerCase();
+    var start6 = start;
+
+    if (data.version.$ === '4') {
+      start6 = '::ffff:' + start;
+    }
 
     $('#arin .start-address').html(sprintf('<a href="#address=%s">%s</a>',
-      start, start)).show().prev().show();
+      start6, start)).show().prev().show();
   }
 
   if (data.endAddress) {
     var end = data.endAddress.$.toLowerCase();
+    var end6 = end;
 
-    $('#arin .end-address').html(sprintf('<a href="#address=%s">%s</a>', end,
-      end)).show().prev().show();
+    if (data.version.$ === '4') {
+      end6 = '::ffff:' + end;
+    }
+
+    $('#arin .end-address').html(sprintf('<a href="#address=%s">%s</a>',
+      end6, end)).show().prev().show();
   }
 
   if (data.netBlocks) {
     $.each(data.netBlocks, function (i, n) {
-      formatNetblock(n);
+      formatNetblock(n, data.version.$);
     });
 
     $('#arin .netblocks').show().prev().show();
