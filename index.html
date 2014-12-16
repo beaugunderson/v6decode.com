@@ -1,55 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
  <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
 
   <title>IPv6 address information - v6decode.com</title>
 
-  <link rel="stylesheet" type="text/css" href="/css/v6decode.css" />
+  <link rel="stylesheet" type="text/css" href="/css/v6decode.css">
 
-  <meta property="og:title" content="IPv6 address information: v6decode.com" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="http://v6decode.com/" />
-  <meta property="og:image" content="" />
-  <meta property="og:site_name" content="v6decode.com" />
+  <meta property="og:title" content="IPv6 address information: v6decode.com">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://v6decode.com/">
+  <meta property="og:image" content="">
+  <meta property="og:site_name" content="v6decode.com">
 
-  <meta property="fb:admins" content="1576860066" />
+  <meta property="fb:admins" content="1576860066">
 
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script type="text/javascript" src="http://gitforked.com/api/1.1/button.js"></script>
+  <script
+    src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
-  <script type="text/javascript" src="/lib/jquery.ba-bbq.min.js"></script>
-  <script type="text/javascript" src="/lib/jsbn.js"></script>
-  <script type="text/javascript" src="/lib/jsbn2.js"></script>
-  <script type="text/javascript" src="/lib/json2.js"></script>
-  <script type="text/javascript" src="/lib/sprintf.js"></script>
-  <script type="text/javascript" src="/lib/underscore-min.js"></script>
+  <script src="/lib/jquery.ba-bbq.min.js"></script>
+  <script src="/lib/jsbn.js"></script>
+  <script src="/lib/jsbn2.js"></script>
+  <script src="/lib/json2.js"></script>
+  <script src="/lib/sprintf.js"></script>
+  <script src="/lib/underscore-min.js"></script>
+  <script
+    src="https://cdn.rawgit.com/gabemart/hipku/0cf97c1c339cd481bcc4681799d65a18e85636a8/dist/hipku.min.js"></script>
 
-  <script type="text/javascript" src="/ipv6/ipv6.js"></script>
+  <script src="/ipv6/ipv6.js"></script>
 
-  <script type="text/javascript" src="/js/v6decode.js"></script>
+  <script src="/js/v6decode.js"></script>
 
-  <link rel="stylesheet" type="text/css" href="http://www.beaugunderson.com/fonts/museo-300/stylesheet.css" />
-  <link rel="stylesheet" type="text/css" href="http://www.beaugunderson.com/fonts/museo-slab-500/stylesheet.css" />
-
-  <!-- Google+ -->
-  <script>
-   (function() {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/plusone.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-   })();
-  </script>
-
-  <!-- Facebook -->
-  <script>(function(d, s, id) {
-   var js, fjs = d.getElementsByTagName(s)[0];
-   if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=260387767353655";
-    fjs.parentNode.insertBefore(js, fjs);
-   }(document, 'script', 'facebook-jssdk'));
-  </script>
+  <link rel="stylesheet" type="text/css"
+    href="http://www.beaugunderson.com/fonts/museo-300/stylesheet.css">
+  <link rel="stylesheet" type="text/css"
+    href="http://www.beaugunderson.com/fonts/museo-slab-500/stylesheet.css">
 
   <!-- Google Analytics -->
   <script>
@@ -66,19 +51,8 @@
  </head>
 
  <body>
-  <div id="fb-root"></div>
-
-  <div id="buttons">
-   <g:plusone size="small"></g:plusone>
-
-   <div class="fb-like" data-href="http://v6decode.com/" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
-
-   <a href="http://github.com/beaugunderson/v6decode.com"
-    class="gitforked-button gitforked-forks gitforked-watchers">Fork</a>
-  </div>
-
   <div class="awesome blue" id="address-wrapper">
-   <input type="text" id="address" value="" placeholder="Enter an IPv6 address" />
+   <input type="text" id="address" value="" placeholder="Enter an IPv6 address">
   </div>
 
   <div id="examples">
@@ -103,7 +77,11 @@
    <dl>
     <dt>Valid</dt> <dd class="output" id="valid"></dd>
     <dt class="error">Error</dt> <dd class="error" id="error"></dd>
-    <dt><a href="http://tools.ietf.org/html/rfc5952#page-10" title="À la 'A Recommendation for IPv6 Text Representation'">Correct</a></dt> <dd class="output" id="correct"></dd>
+    <dt>
+      <a href="http://tools.ietf.org/html/rfc5952#page-10"
+        title="À la 'A Recommendation for IPv6 Text Representation'">Correct</a>
+    </dt>
+    <dd class="output" id="correct"></dd>
     <dt>Canonical</dt> <dd class="output" id="canonical"></dd>
     <dt>Type</dt> <dd class="output" id="type"></dd>
     <dt>Scope</dt> <dd class="output" id="scope"></dd>
@@ -149,6 +127,9 @@
     <dt>Link</dt> <dd class="output" id="link-form"></dd>
     <dt>Microsoft UNC</dt> <dd class="output" id="microsoft-form"></dd>
     <dt id="6to4-form-header">6to4</dt> <dd class="output"></dd>
+
+    <dt><a href="http://gabrielmartin.net/projects/hipku/">Hipku</a></dt>
+    <dd class="output" id="hipku"></dd>
    </dl>
 
    <h2>Additional information</h2>
@@ -158,7 +139,8 @@
 
     <dd>
      <dl>
-      <dt>Size <a id="minimum-size" href="#"></a> <select id="subnet-select"></select> <a id="maximum-size" href="#"></a></dt>
+      <dt>Size <a id="minimum-size" href="#"></a> 
+       <select id="subnet-select"></select> <a id="maximum-size" href="#"></a></dt>
 
       <dd class="output" id="subnets"></dd>
      </dl>
@@ -256,11 +238,17 @@
 
   <div id="footer">
    <span id="copyright"><a href="http://www.beaugunderson.com/">Beau
-     Gunderson</a>, 2011-2013</span>
+     Gunderson</a>, 2011-2014</span>
 
    <a href="https://twitter.com/beaugunderson" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @beaugunderson</a>
 
    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+   <br>
+   <br>
+
+   <a
+     href="https://github.com/beaugunderson/v6decode.com">v6decode on GitHub</a>
   </div>
  </body>
 </html>

@@ -231,6 +231,10 @@ dd {
   padding: 0;
 }
 
+dd, dt {
+  padding-top: 0.333em;
+}
+
 /* Address entry field */
 #address-wrapper {
   width: 500px;

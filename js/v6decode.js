@@ -1,5 +1,8 @@
 /*global $:true, _:true, sprintf:true, addCommas:true, zeroPad:true, v4:true,
-  v6:true, BigInteger:true*/
+  v6:true, BigInteger:true, Hipku:true*/
+
+'use strict';
+
 var loaded = false;
 
 function formatNetblock(netblock, version) {
@@ -134,13 +137,13 @@ function updateAddressFromRemoteAddress(options) {
 
       if (options.setAddress) {
         $.bbq.pushState({
-          'address': address6.correctForm()
+          address: address6.correctForm()
         });
       }
     } else if (address4.isValid()) {
       if (options.setAddress) {
         $.bbq.pushState({
-          'address': v6.Address.fromAddress4(addressString).v4inv6()
+          address: v6.Address.fromAddress4(addressString).v4inv6()
         });
       }
     }
@@ -149,12 +152,12 @@ function updateAddressFromRemoteAddress(options) {
   });
 }
 
-function visualizeBinary(bigInteger, opt_size) {
-  if (opt_size === undefined) {
-    opt_size = 16;
+function visualizeBinary(bigInteger, optionalSize) {
+  if (optionalSize === undefined) {
+    optionalSize = 16;
   }
 
-  var binary = zeroPad(bigInteger.toString(2), opt_size);
+  var binary = zeroPad(bigInteger.toString(2), optionalSize);
   var powers = [];
   var i;
 
@@ -250,7 +253,7 @@ function updateTeredo(address) {
 
     $('#teredo .ms-reserved').text(teredoData.microsoft.reserved ? 'Yes' : 'No');
     $('#teredo .ms-universal-local')
-      .text(teredoData.microsoft.universalLocal ?  'Local' : 'Universal');
+      .text(teredoData.microsoft.universalLocal ? 'Local' : 'Universal');
     $('#teredo .ms-group-individual')
       .text(teredoData.microsoft.groupIndividual ? 'Individual' : 'Group');
     $('#teredo .ms-nonce').text(teredoData.microsoft.nonce);
@@ -305,10 +308,8 @@ function addHoverBindings() {
           $(hoverClasses[i]).wrapAll('<span class="active wrapped" />');
         }
       }
-    } else {
-      if (classes.length > 1) {
-        $(classes.join('')).addClass('active');
-      }
+    } else if (classes.length > 1) {
+      $(classes.join('')).addClass('active');
     }
   }, function hoverOut() {
     $('.hover-group, .digit').removeClass('active');
@@ -320,7 +321,7 @@ var pushState = _.debounce(function () {
   var address = $.trim($('#address').val());
 
   if ($.bbq.getState('address') !== address) {
-    $.bbq.pushState({ 'address': address });
+    $.bbq.pushState({address: address});
   }
 }, 200);
 
@@ -330,12 +331,12 @@ function updateAddress() {
 
   if (addressString === '' &&
     loaded === false) {
-    updateAddressFromRemoteAddress({ setAddress: true });
+    updateAddressFromRemoteAddress({setAddress: true});
 
     return;
   }
 
-  updateAddressFromRemoteAddress({ setAddress: false });
+  updateAddressFromRemoteAddress({setAddress: false});
 
   loaded = true;
 
@@ -435,6 +436,7 @@ function updateAddress() {
     $('#reverse-form').text(address.reverseForm());
     $('#link-form').html(sprintf('<a href="%1$s">%1$s</a>', address.href()));
     $('#microsoft-form').text(address.microsoftTranscription());
+    $('#hipku').html(Hipku.encode(address.correctForm()).replace(/\n/g, '<br>'));
 
     if (address.is4()) {
       $('#6to4-form-header, #6to4-form-header + dd').show();
@@ -444,9 +446,9 @@ function updateAddress() {
     }
 
     $('#first-address').html(address.startAddress()
-      .link({ v4: addressStringMinusSuffix === v4 }));
+      .link({v4: addressStringMinusSuffix === v4}));
     $('#last-address').html(address.endAddress()
-      .link({ v4: addressStringMinusSuffix === v4 }));
+      .link({v4: addressStringMinusSuffix === v4}));
 
     updateBase2(address);
     updateSubnetSelect(address);
