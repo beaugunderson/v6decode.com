@@ -21,7 +21,7 @@ ul.binary-visualizer {
   margin-bottom: 1em;
 }
 
-ul.binary-visualizer *  {
+ul.binary-visualizer * {
   font-family: courier;
   font-size: 0.95rem;
   line-height: 0.9rem;
@@ -46,12 +46,20 @@ ul.binary-visualizer span {
 .output,
 .output * {
   font-family: Consolas, monospace;
+  word-break: break-all;
 }
 
 body {
   font-size: 13pt;
-  padding: 1em 8em;
   line-height: 1.3em;
+
+  @media (min-width: 768px) {
+    padding: 1em 8em;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1em 0;
+  }
 }
 
 h1 {
@@ -214,10 +222,7 @@ div > dl {
 dl {
   float: left;
   width: 100%;
-  margin-top: 0;
-  margin-left: 0;
-  margin-right: 0;
-  margin-bottom: 1em;
+  margin: 0 0 1em;
   padding: 0;
 }
 
@@ -231,7 +236,6 @@ dt {
 }
 
 dd {
-  float: left;
   margin: 0;
   padding: 0;
 }

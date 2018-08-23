@@ -42,12 +42,22 @@ ul.binary-visualizer span {
 .output,
 .output * {
   font-family: Consolas, monospace;
+  word-break: break-all;
 }
 
 body {
   font-size: 13pt;
-  padding: 1em 8em;
   line-height: 1.3em;
+}
+@media (min-width: 768px) {
+  body {
+    padding: 1em 8em;
+  }
+}
+@media (max-width: 768px) {
+  body {
+    padding: 1em 0;
+  }
 }
 
 h1 {
@@ -209,10 +219,7 @@ div > dl {
 dl {
   float: left;
   width: 100%;
-  margin-top: 0;
-  margin-left: 0;
-  margin-right: 0;
-  margin-bottom: 1em;
+  margin: 0 0 1em;
   padding: 0;
 }
 
@@ -226,7 +233,6 @@ dt {
 }
 
 dd {
-  float: left;
   margin: 0;
   padding: 0;
 }
@@ -315,3 +321,5 @@ dd, dt {
   clear: both;
   visibility: hidden;
 }
+
+/*# sourceMappingURL=v6decode.css.map */
