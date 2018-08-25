@@ -201,40 +201,17 @@ dd.comment pre {
   margin-bottom: 1em;
 }
 
-#rfcs {
-  float: left;
-  width: 45%;
-}
-
-#wikipedia {
-  float: right;
-  width: 45%;
-}
-
 /* Lists */
 div > dl {
   margin-left: 1em;
 }
 
 dl {
-  float: left;
   width: 100%;
-  margin: 0 0 1em;
-  padding: 0;
 }
 
 dt {
-  clear: left;
-  float: left;
-  width: 12em;
-  margin: 0;
-  padding: 0;
   font-weight: bold;
-}
-
-dd {
-  margin: 0;
-  padding: 0;
 }
 
 dd, dt {
@@ -243,7 +220,6 @@ dd, dt {
 
 /* Address entry field */
 #address-wrapper {
-  width: 100%;
   max-width: 500px;
   margin: 1em auto;
 }
