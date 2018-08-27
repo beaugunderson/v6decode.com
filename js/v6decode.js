@@ -147,7 +147,7 @@ function updateAddressFromRemoteAddress(options) {
         });
       }
     }
-  }).error(function (d, statusText, xhr) {
+  }).fail(function (d, statusText, xhr) {
     console.log('AJAX error', d, statusText, xhr);
   });
 }
