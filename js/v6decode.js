@@ -126,30 +126,32 @@ function formatArin(data) {
 }
 
 function updateAddressFromRemoteAddress(options) {
-  $.get('ip.py', function (d, statusText, xhr) {
-    var addressString = xhr.getResponseHeader('x-address');
+    $.get('ip.py', function (d, statusText, xhr) {
+        var addressString = xhr.getResponseHeader('x-address');
 
-    var address4 = new v4.Address(addressString);
-    var address6 = new v6.Address(addressString);
+        if (addressString) {
+            var address4 = new v4.Address(addressString);
+            var address6 = new v6.Address(addressString);
 
-    if (address6.isValid()) {
-      thankUser(address6.correctForm());
+            if (address6.isValid()) {
+                thankUser(address6.correctForm());
 
-      if (options.setAddress) {
-        $.bbq.pushState({
-          address: address6.correctForm()
-        });
-      }
-    } else if (address4.isValid()) {
-      if (options.setAddress) {
-        $.bbq.pushState({
-          address: v6.Address.fromAddress4(addressString).v4inv6()
-        });
-      }
-    }
-  }).fail(function (d, statusText, xhr) {
-    console.log('AJAX error', d, statusText, xhr);
-  });
+                if (options.setAddress) {
+                    $.bbq.pushState({
+                        address: address6.correctForm()
+                    });
+                }
+            } else if (address4.isValid()) {
+                if (options.setAddress) {
+                    $.bbq.pushState({
+                        address: v6.Address.fromAddress4(addressString).v4inv6()
+                    });
+                }
+            }
+        }
+    }).fail(function (d, statusText, xhr) {
+        console.log('AJAX error', d, statusText, xhr);
+    });
 }
 
 function visualizeBinary(bigInteger, optionalSize) {
@@ -267,12 +269,12 @@ function updateTeredo(address) {
 }
 
 function updateArinJson(address) {
-  $.getJSON('/arin/ip/' + address.correctForm(), function getArinJson(data) {
+  $.getJSON('arin/ip/' + address.correctForm(), function getArinJson(data) {
     formatArin(data.net);
 
     $('#arin-error').hide();
     $('#arin').show();
-  }).error(function getArinJsonError(result) {
+  }).fail(function getArinJsonError(result) {
     if (result.status === 404) {
       $('#arin-error').text('No ARIN record found for that address.');
 
