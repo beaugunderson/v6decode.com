@@ -126,7 +126,7 @@ function formatArin(data) {
 }
 
 function updateAddressFromRemoteAddress(options) {
-    $.get('ip.py', function (d, statusText, xhr) {
+    $.get('ip.php', function (d, statusText, xhr) {
         var addressString = xhr.getResponseHeader('x-address');
 
         if (addressString) {
