@@ -269,7 +269,7 @@ function updateTeredo(address) {
 }
 
 function updateArinJson(address) {
-  $.getJSON('arin/ip/' + address.correctForm(), function getArinJson(data) {
+  $.getJSON('https://whois.arin.net/rest/ip/' + address.correctForm(), function getArinJson(data) {
     formatArin(data.net);
 
     $('#arin-error').hide();
