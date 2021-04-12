@@ -42,12 +42,22 @@ ul.binary-visualizer span {
 .output,
 .output * {
   font-family: Consolas, monospace;
+  word-break: break-word;
 }
 
 body {
   font-size: 13pt;
-  padding: 1em 8em;
   line-height: 1.3em;
+}
+@media (min-width: 768px) {
+  body {
+    padding: 1em 8em;
+  }
+}
+@media (max-width: 768px) {
+  body {
+    padding: 1em 0;
+  }
 }
 
 h1 {
@@ -191,44 +201,13 @@ dd.comment pre {
   margin-bottom: 1em;
 }
 
-#rfcs {
-  float: left;
-  width: 45%;
-}
-
-#wikipedia {
-  float: right;
-  width: 45%;
-}
-
 /* Lists */
 div > dl {
   margin-left: 1em;
 }
 
-dl {
-  float: left;
-  width: 100%;
-  margin-top: 0;
-  margin-left: 0;
-  margin-right: 0;
-  margin-bottom: 1em;
-  padding: 0;
-}
-
 dt {
-  clear: left;
-  float: left;
-  width: 12em;
-  margin: 0;
-  padding: 0;
   font-weight: bold;
-}
-
-dd {
-  float: left;
-  margin: 0;
-  padding: 0;
 }
 
 dd, dt {
@@ -237,12 +216,13 @@ dd, dt {
 
 /* Address entry field */
 #address-wrapper {
-  width: 500px;
+  max-width: 500px;
   margin: 1em auto;
 }
 
 #address-wrapper input {
-  width: 498px;
+  width: 100%;
+  max-width: 498px;
   font-size: 1.5em;
   padding: 5px;
   text-align: center;
@@ -254,7 +234,7 @@ dd, dt {
 }
 
 .awesome {
-  background: #222222 url(/images/alert-overlay.png) repeat-x;
+  background: #222222 url(../images/alert-overlay.png) repeat-x;
   padding: 15px 20px 15px 20px;
   color: #fff;
   text-decoration: none;
@@ -313,3 +293,5 @@ dd, dt {
   clear: both;
   visibility: hidden;
 }
+
+/*# sourceMappingURL=v6decode.css.map */

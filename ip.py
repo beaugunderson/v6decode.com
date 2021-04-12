@@ -1,7 +1,7 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
 import os
 
-print "Content-Type: text/plain"
-print "X-Address: %s" % os.environ["REMOTE_ADDR"]
-print
+print("Content-Type: text/plain")
+print("X-Address: %s" % os.environ.get("REMOTE_ADDR"))
+print()
