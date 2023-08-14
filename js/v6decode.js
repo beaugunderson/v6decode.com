@@ -126,8 +126,10 @@ function formatArin(data) {
 }
 
 function updateAddressFromRemoteAddress(options) {
-  $.get('/ip.py', function (d, statusText, xhr) {
-    var addressString = xhr.getResponseHeader('x-address');
+  $.get('https://jsonip.com', function (data, statusText, xhr) {
+    var addressString = data.ip;
+
+    console.log(d, statustext, xhr);
 
     var address4 = new v4.Address(addressString);
     var address6 = new v6.Address(addressString);
