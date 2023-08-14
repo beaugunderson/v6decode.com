@@ -129,7 +129,7 @@ function updateAddressFromRemoteAddress(options) {
   $.get('https://jsonip.com', function (data, statusText, xhr) {
     var addressString = data.ip;
 
-    console.log(d, statustext, xhr);
+    console.log(data, statustext, xhr);
 
     var address4 = new v4.Address(addressString);
     var address6 = new v6.Address(addressString);
@@ -149,8 +149,8 @@ function updateAddressFromRemoteAddress(options) {
         });
       }
     }
-  }).error(function (d, statusText, xhr) {
-    console.log('AJAX error', d, statusText, xhr);
+  }).error(function (data, statusText, xhr) {
+    console.log('AJAX error', data, statusText, xhr);
   });
 }
 
