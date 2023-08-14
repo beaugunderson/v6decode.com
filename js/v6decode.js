@@ -129,7 +129,7 @@ function updateAddressFromRemoteAddress(options) {
   $.get('https://jsonip.com', function (data, statusText, xhr) {
     var addressString = data.ip;
 
-    console.log(data, statustext, xhr);
+    console.log({ data, statusText, xhr });
 
     var address4 = new v4.Address(addressString);
     var address6 = new v6.Address(addressString);
