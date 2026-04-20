@@ -1,9 +1,137 @@
-/*global $:true, _:true, sprintf:true, addCommas:true, zeroPad:true, v4:true,
-  v6:true, BigInteger:true, Hipku:true*/
+/*global Hipku:true*/
 
-'use strict';
+import { Address4, Address6, v6 } from 'https://esm.sh/ip-address@10';
 
 var loaded = false;
+
+function addCommas(number) {
+  var r = /(\d+)(\d{3})/;
+
+  while (r.test(number)) {
+    number = number.replace(r, '$1,$2');
+  }
+
+  return number;
+}
+
+function zeroPad(s, n) {
+  while (s.length < n) {
+    s = '0' + s;
+  }
+
+  return s;
+}
+
+function debounce(fn, ms) {
+  var timer;
+
+  return function () {
+    var args = arguments;
+
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      fn.apply(null, args);
+    }, ms);
+  };
+}
+
+function parseHash() {
+  var params = {};
+
+  location.hash.replace(/^#/, '').split('&').forEach(function (pair) {
+    if (!pair) {
+      return;
+    }
+
+    var eq = pair.indexOf('=');
+    var k = decodeURIComponent(eq >= 0 ? pair.slice(0, eq) : pair);
+    var v = eq >= 0 ? decodeURIComponent(pair.slice(eq + 1)) : '';
+
+    params[k] = v;
+  });
+
+  return params;
+}
+
+function getHashState(key) {
+  return parseHash()[key];
+}
+
+function pushHashState(patch) {
+  var params = parseHash();
+
+  Object.assign(params, patch);
+
+  location.hash = Object.keys(params).map(function (k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  }).join('&');
+}
+
+function $(selector, root) {
+  return (root || document).querySelector(selector);
+}
+
+function $$(selector, root) {
+  return Array.from((root || document).querySelectorAll(selector));
+}
+
+function show(el) {
+  if (el) {
+    el.style.display = 'block';
+  }
+}
+
+function hide(el) {
+  if (el) {
+    el.style.display = 'none';
+  }
+}
+
+function showAll(selector) {
+  $$(selector).forEach(show);
+}
+
+function hideAll(selector) {
+  $$(selector).forEach(hide);
+}
+
+function setText(selector, text) {
+  $$(selector).forEach(function (el) { el.textContent = text; });
+}
+
+function setHtml(el, html) {
+  if (el) {
+    el.innerHTML = html;
+  }
+}
+
+function showWithLabel(el, text) {
+  if (!el) {
+    return;
+  }
+
+  el.textContent = text;
+
+  show(el);
+
+  if (el.previousElementSibling) {
+    show(el.previousElementSibling);
+  }
+}
+
+function showWithLabelHtml(el, html) {
+  if (!el) {
+    return;
+  }
+
+  setHtml(el, html);
+
+  show(el);
+
+  if (el.previousElementSibling) {
+    show(el.previousElementSibling);
+  }
+}
 
 function formatNetblock(netblock, version) {
   var start = netblock.startAddress.$.toLowerCase();
@@ -17,149 +145,137 @@ function formatNetblock(netblock, version) {
     end6 = '::ffff:' + end;
   }
 
-  start = sprintf('<a href="#address=%s">%s</a>', start6, start);
-  end = sprintf('<a href="#address=%s">%s</a>', end6, end);
+  start = `<a href="#address=${start6}">${start}</a>`;
+  end = `<a href="#address=${end6}">${end}</a>`;
 
-  $('#arin .netblocks').append(sprintf('<dl>' +
-    '<dt>CIDR length</dt> <dd>%s</dd>' +
-    '<dt>Description</dt> <dd>%s</dd>' +
-    '<dt>Start address</dt> <dd>%s</dd>' +
-    '<dt>End address</dt> <dd>%s</dd>' +
-    '<dt>Type</dt> <dd>%s</dd>' +
-    '</dl>',
-    netblock.cidrLength.$,
-    netblock.description.$,
-    start,
-    end,
-    netblock.type.$));
+  $('#arin .netblocks').insertAdjacentHTML('beforeend',
+    `<dl>
+      <dt>CIDR length</dt> <dd>${netblock.cidrLength.$}</dd>
+      <dt>Description</dt> <dd>${netblock.description.$}</dd>
+      <dt>Start address</dt> <dd>${start}</dd>
+      <dt>End address</dt> <dd>${end}</dd>
+      <dt>Type</dt> <dd>${netblock.type.$}</dd>
+    </dl>`);
 }
 
 function thankUser(addressString) {
-  $('#thanks').show();
+  show($('#thanks'));
 
-  $('#user-address').attr('href', sprintf('/#address=%s', addressString));
+  $('#user-address').setAttribute('href', `/#address=${addressString}`);
 }
 
 function formatArin(data) {
-  $('#arin dt, #arin dd').hide();
-  $('#arin dd').text('');
+  hideAll('#arin dt, #arin dd');
+  setText('#arin dd', '');
 
   if (data.name) {
-    $('#arin .name').text(data.name.$).show().prev().show();
+    showWithLabel($('#arin .name'), data.name.$);
   }
 
   if (data.handle) {
     if (data.ref) {
-      $('#arin .handle').html(sprintf('<a href="%s">%s</a>', data.ref.$,
-        data.handle.$)).show().prev().show();
+      showWithLabelHtml($('#arin .handle'),
+        `<a href="${data.ref.$}">${data.handle.$}</a>`);
     } else {
-      $('#arin .handle').text(data.handle.$).show().prev().show();
+      showWithLabel($('#arin .handle'), data.handle.$);
     }
   }
 
   if (data.parentNetRef) {
-    $('#arin .parent').html(sprintf('<a href="%s">%s</a>', data.parentNetRef.$,
-      data.parentNetRef['@handle'])).show().prev().show();
+    showWithLabelHtml($('#arin .parent'),
+      `<a href="${data.parentNetRef.$}">${data.parentNetRef['@handle']}</a>`);
   }
 
   if (data.orgRef) {
-    $('#arin .organization').html(sprintf('<a href="%s">%s - %s</a>',
-      data.orgRef.$, data.orgRef['@handle'], data.orgRef['@name'])).show()
-        .prev().show();
+    showWithLabelHtml($('#arin .organization'),
+      `<a href="${data.orgRef.$}">${data.orgRef['@handle']} - ${data.orgRef['@name']}</a>`);
   }
 
   if (data.registrationDate) {
-    $('#arin .registration-date').text(data.registrationDate.$).show().prev()
-      .show();
+    showWithLabel($('#arin .registration-date'), data.registrationDate.$);
   }
 
   if (data.updateDate) {
-    $('#arin .update-date').text(data.updateDate.$).show().prev().show();
+    showWithLabel($('#arin .update-date'), data.updateDate.$);
   }
 
   if (data.version) {
-    $('#arin .version').text(data.version.$).show().prev().show();
+    showWithLabel($('#arin .version'), data.version.$);
   }
 
   if (data.startAddress) {
     var start = data.startAddress.$.toLowerCase();
-    var start6 = start;
+    var start6 = data.version.$ === '4' ? '::ffff:' + start : start;
 
-    if (data.version.$ === '4') {
-      start6 = '::ffff:' + start;
-    }
-
-    $('#arin .start-address').html(sprintf('<a href="#address=%s">%s</a>',
-      start6, start)).show().prev().show();
+    showWithLabelHtml($('#arin .start-address'),
+      `<a href="#address=${start6}">${start}</a>`);
   }
 
   if (data.endAddress) {
     var end = data.endAddress.$.toLowerCase();
-    var end6 = end;
+    var end6 = data.version.$ === '4' ? '::ffff:' + end : end;
 
-    if (data.version.$ === '4') {
-      end6 = '::ffff:' + end;
-    }
-
-    $('#arin .end-address').html(sprintf('<a href="#address=%s">%s</a>',
-      end6, end)).show().prev().show();
+    showWithLabelHtml($('#arin .end-address'),
+      `<a href="#address=${end6}">${end}</a>`);
   }
 
-  if (data.netBlocks) {
-    $.each(data.netBlocks, function (i, n) {
+  if (data.netBlocks && data.netBlocks.netBlock) {
+    var blocks = Array.isArray(data.netBlocks.netBlock) ?
+      data.netBlocks.netBlock : [data.netBlocks.netBlock];
+
+    blocks.forEach(function (n) {
       formatNetblock(n, data.version.$);
     });
 
-    $('#arin .netblocks').show().prev().show();
+    var netblocksEl = $('#arin .netblocks');
 
-    $('#arin .netblocks dt, #arin .netblocks dd').show();
+    show(netblocksEl);
+
+    if (netblocksEl.previousElementSibling) {
+      show(netblocksEl.previousElementSibling);
+    }
+
+    $$('#arin .netblocks dt, #arin .netblocks dd').forEach(show);
   }
 
-  if (data.comment) {
-    var comment = $.map(data.comment.line, function (c) {
-      return c.$;
-    });
+  if (data.comment && data.comment.line) {
+    var lines = Array.isArray(data.comment.line) ? data.comment.line : [data.comment.line];
+    var comment = lines.map(function (c) { return c.$; });
 
-    $('#arin .comment').html(sprintf('<pre>%s</pre>',
-      comment.join('\n'))).show().prev().show();
+    showWithLabelHtml($('#arin .comment'), `<pre>${comment.join('\n')}</pre>`);
   }
 }
 
 function updateAddressFromRemoteAddress(options) {
-  $.get('https://jsonip.com', function (data, statusText, xhr) {
+  fetch('https://jsonip.com').then(function (r) {
+    return r.json();
+  }).then(function (data) {
     var addressString = data.ip;
 
-    console.log({ data, statusText, xhr });
+    if (Address6.isValid(addressString)) {
+      var address6 = new Address6(addressString);
 
-    var address4 = new v4.Address(addressString);
-    var address6 = new v6.Address(addressString);
-
-    if (address6.isValid()) {
       thankUser(address6.correctForm());
 
       if (options.setAddress) {
-        $.bbq.pushState({
-          address: address6.correctForm()
-        });
+        pushHashState({address: address6.correctForm()});
       }
-    } else if (address4.isValid()) {
+    } else if (Address4.isValid(addressString)) {
       if (options.setAddress) {
-        $.bbq.pushState({
-          address: v6.Address.fromAddress4(addressString).v4inv6()
-        });
+        pushHashState({address: Address6.fromAddress4(addressString).to4in6()});
       }
     }
-  }).error(function (data, statusText, xhr) {
-    console.log('AJAX error', data, statusText, xhr);
+  }).catch(function (err) {
+    console.log('AJAX error', err);
   });
 }
 
-function visualizeBinary(bigInteger, optionalSize) {
+function visualizeBinary(value, optionalSize) {
   if (optionalSize === undefined) {
     optionalSize = 16;
   }
 
-  var binary = zeroPad(bigInteger.toString(2), optionalSize);
+  var binary = zeroPad(value.toString(2), optionalSize);
   var powers = [];
   var i;
 
@@ -170,15 +286,15 @@ function visualizeBinary(bigInteger, optionalSize) {
   var result = '<ul class="binary-visualizer">';
 
   for (i = 0; i < binary.length; i++) {
-    result += sprintf(
-      '<li>' +
-       '<span class="digit binary-%1$s">%1$s</span>' +
-       '<span class="binary-%1$s">%2$s</span>' +
-      '</li>', binary[i], addCommas(String(powers[i])));
+    var bit = binary[i];
+
+    result += `<li>` +
+      `<span class="digit binary-${bit}">${bit}</span>` +
+      `<span class="binary-${bit}">${addCommas(String(powers[i]))}</span>` +
+      `</li>`;
   }
 
-  result += sprintf('<li><span class="binary-total">%s</span></li>',
-    addCommas(bigInteger.toString(10)));
+  result += `<li><span class="binary-total">${addCommas(value.toString(10))}</span></li>`;
   result += '</ul>';
 
   return result;
@@ -190,33 +306,32 @@ function updateBase2(address) {
   var i;
 
   for (i = 0; i < 8; i++) {
-    baseTwoArray.push(sprintf('<span class="hover-group group-%d">%s</span>',
-      i, v6.Address.spanAll(zeropad.slice(i * 16, (i * 16) + 16), i * 16)));
+    baseTwoArray.push(
+      `<span class="hover-group group-${i}">${v6.helpers.spanAll(zeropad.slice(i * 16, (i * 16) + 16), i * 16)}</span>`);
   }
 
-  $('#base-2').html(sprintf('<div id="row-1">%s</div>' +
-    '<div id="row-2">%s</div>',
-    baseTwoArray.slice(0, 4).join(''),
-    baseTwoArray.slice(4, 8).join('')));
+  setHtml($('#base-2'),
+    `<div id="row-1">${baseTwoArray.slice(0, 4).join('')}</div>` +
+    `<div id="row-2">${baseTwoArray.slice(4, 8).join('')}</div>`);
 
-  $('#base-2 .hover-group').unbind('click');
+  $$('#base-2 .hover-group').forEach(function (el) {
+    el.onclick = function () {
+      $$('.binary-visualizer').forEach(function (v) { v.remove(); });
 
-  $('#base-2 .hover-group').click(function () {
-    $('.binary-visualizer').remove();
+      var group = parseInt(el.className.match(/group-(\d+)/)[1], 10);
 
-    var group = parseInt($(this).attr('class').match(/group-(\d+)/)[1], 10);
-
-    $('#base-2').append(visualizeBinary(address.getBits(group * 16,
-      (group + 1) * 16)));
+      $('#base-2').insertAdjacentHTML('beforeend',
+        visualizeBinary(address.getBits(group * 16, (group + 1) * 16)));
+    };
   });
 }
 
 function updateSubnetSelect(address) {
-  var i;
+  var select = $('#subnet-select');
 
-  $('#subnet-select').html('');
+  select.textContent = '';
 
-  for (i = address.subnetMask; i <= 128; i++) {
+  for (var i = address.subnetMask; i <= 128; i++) {
     var special = '';
 
     if (i === 128) {
@@ -225,114 +340,155 @@ function updateSubnetSelect(address) {
       special = ' (a device)';
     }
 
-    $('#subnet-select').append(sprintf('<option value="%1$d">%1$d%2$s</option>',
-      i, special));
+    select.insertAdjacentHTML('beforeend',
+      `<option value="${i}">${i}${special}</option>`);
   }
 
-  $('#subnet-select').unbind();
+  var onChange = function () {
+    $('#subnets').textContent = address.possibleSubnets(parseInt(select.value, 10));
+  };
 
-  $('#subnet-select').bind('keyup mouseup change', function () {
-    $('#subnets').text(address.possibleAddresses(parseInt($('#subnet-select')
-      .val(), 10)));
-  });
+  select.onkeyup = onChange;
+  select.onmouseup = onChange;
+  select.onchange = onChange;
 
-  $('#subnet-select').change();
+  onChange();
 }
 
 function updateTeredo(address) {
   if (address.isTeredo()) {
-    var teredoData = address.teredo();
+    var t = address.inspectTeredo();
 
-    $('#teredo .prefix').text(teredoData.prefix);
-    $('#teredo .server-v4').text(teredoData.server4);
-    $('#teredo .client-v4').text(teredoData.client4);
-    $('#teredo .udp-port').text(teredoData.udpPort);
-    $('#teredo .flags')
-      .html(sprintf('<span class="hover-group group-4">%s</span>',
-        v6.Address.spanAllZeroes(teredoData.flags)));
+    $('#teredo .prefix').textContent = t.prefix;
+    $('#teredo .server-v4').textContent = t.server4;
+    $('#teredo .client-v4').textContent = t.client4;
+    $('#teredo .udp-port').textContent = t.udpPort;
+    setHtml($('#teredo .flags'),
+      `<span class="hover-group group-4">${v6.helpers.spanAllZeroes(t.flags)}</span>`);
 
-    $('#teredo .cone-nat').text(teredoData.coneNat ? 'Yes' : 'No');
+    $('#teredo .cone-nat').textContent = t.coneNat ? 'Yes' : 'No';
 
-    $('#teredo .ms-reserved').text(teredoData.microsoft.reserved ? 'Yes' : 'No');
-    $('#teredo .ms-universal-local')
-      .text(teredoData.microsoft.universalLocal ? 'Local' : 'Universal');
-    $('#teredo .ms-group-individual')
-      .text(teredoData.microsoft.groupIndividual ? 'Individual' : 'Group');
-    $('#teredo .ms-nonce').text(teredoData.microsoft.nonce);
+    $('#teredo .ms-reserved').textContent = t.microsoft.reserved ? 'Yes' : 'No';
+    $('#teredo .ms-universal-local').textContent = t.microsoft.universalLocal ? 'Local' : 'Universal';
+    $('#teredo .ms-group-individual').textContent = t.microsoft.groupIndividual ? 'Individual' : 'Group';
+    $('#teredo .ms-nonce').textContent = t.microsoft.nonce;
 
-    $('#not-teredo').hide();
-    $('#teredo').show();
+    hide($('#not-teredo'));
+    show($('#teredo'));
   } else {
-    $('#teredo').hide();
-    $('#not-teredo').show();
+    hide($('#teredo'));
+    show($('#not-teredo'));
   }
 }
 
 function updateArinJson(address) {
-  $.getJSON('/arin/ip/' + address.correctForm(), function getArinJson(data) {
+  var url = 'https://whois.arin.net/rest/ip/' + address.correctForm() + '.json';
+
+  fetch(url, {headers: {Accept: 'application/json'}}).then(function (r) {
+    if (!r.ok) {
+      throw new Error('arin status ' + r.status);
+    }
+
+    return r.json();
+  }).then(function (data) {
     formatArin(data.net);
 
-    $('#arin-error').hide();
-    $('#arin').show();
-  }).error(function getArinJsonError(result) {
-    if (result.status === 404) {
-      $('#arin-error').text('No ARIN record found for that address.');
+    hide($('#arin-error'));
+    show($('#arin'));
+  }).catch(function () {
+    $('#arin-error').textContent = 'No ARIN record found for that address.';
 
-      $('#arin').hide();
-      $('#arin-error').show();
+    hide($('#arin'));
+    show($('#arin-error'));
+  });
+}
+
+function wrapAll(selector, className) {
+  var els = $$(selector);
+
+  if (!els.length) {
+    return;
+  }
+
+  var wrapper = document.createElement('span');
+
+  wrapper.className = className;
+
+  els[0].parentNode.insertBefore(wrapper, els[0]);
+
+  els.forEach(function (el) { wrapper.appendChild(el); });
+}
+
+function unwrapAll(selector) {
+  $$(selector).forEach(function (wrapper) {
+    var parent = wrapper.parentNode;
+
+    while (wrapper.firstChild) {
+      parent.insertBefore(wrapper.firstChild, wrapper);
     }
+
+    wrapper.remove();
   });
 }
 
 function addHoverBindings() {
-  $('.hover-group').unbind('hover');
+  $$('.hover-group').forEach(function (el) {
+    el.onmouseenter = function () {
+      var classes = el.className.split(/\s+/)
+        .filter(function (c) { return c && c !== 'group-v4'; })
+        .map(function (c) { return '.' + c; });
 
-  $('.hover-group').hover(function hoverIn() {
-    var classes = $.map($(this).attr('class').split(' '), function (c) {
-      if (c !== 'group-v4') {
-        return '.' + c;
-      }
-    });
+      var hoverClasses = el.dataset.hover;
 
-    var hoverClasses = $(this).data('hover');
+      $$('.hover-group, .digit').forEach(function (e) { e.classList.remove('active'); });
 
-    $('.hover-group, .digit').removeClass('active');
+      if (hoverClasses !== undefined) {
+        el.classList.add('active');
 
-    if (hoverClasses !== undefined) {
-      $(this).addClass('active');
+        var parsed;
 
-      if (typeof hoverClasses === 'string') {
-        $(hoverClasses).addClass('active');
-      } else {
-        var i;
-
-        for (i = 0; i < hoverClasses.length; i++) {
-          $(hoverClasses[i]).wrapAll('<span class="active wrapped" />');
+        try {
+          parsed = JSON.parse(hoverClasses);
+        } catch (_) {
+          parsed = hoverClasses;
         }
+
+        if (typeof parsed === 'string') {
+          $$(parsed).forEach(function (e) { e.classList.add('active'); });
+        } else {
+          for (var i = 0; i < parsed.length; i++) {
+            wrapAll(parsed[i], 'active wrapped');
+          }
+        }
+      } else if (classes.length > 1) {
+        $$(classes.join('')).forEach(function (e) { e.classList.add('active'); });
       }
-    } else if (classes.length > 1) {
-      $(classes.join('')).addClass('active');
-    }
-  }, function hoverOut() {
-    $('.hover-group, .digit').removeClass('active');
-    $('.wrapped > *').unwrap();
+    };
+
+    el.onmouseleave = function () {
+      $$('.hover-group, .digit').forEach(function (e) { e.classList.remove('active'); });
+      unwrapAll('.wrapped');
+    };
   });
 }
 
-var pushState = _.debounce(function () {
-  var address = $.trim($('#address').val());
+var pushState = debounce(function () {
+  var address = $('#address').value.trim();
 
-  if ($.bbq.getState('address') !== address) {
-    $.bbq.pushState({address: address});
+  if (getHashState('address') !== address) {
+    pushHashState({address: address});
   }
 }, 200);
 
+function groupAddressString(str) {
+  return new Address6(str).group();
+}
+
 // Runs whenever the address changes
 function updateAddress() {
-  var addressString = $.trim($.bbq.getState('address'));
+  var addressString = (getHashState('address') || '').trim();
 
-  if (addressString === '' &&
-    loaded === false) {
+  if (addressString === '' && loaded === false) {
     updateAddressFromRemoteAddress({setAddress: true});
 
     return;
@@ -343,54 +499,69 @@ function updateAddress() {
   loaded = true;
 
   // Prevent moving the cursor when editing the address from the middle
-  if ($('#address').val() !== addressString) {
-    $('#address').val(addressString);
+  if ($('#address').value !== addressString) {
+    $('#address').value = addressString;
   }
 
-  var address;
+  var address = null;
+  var parseError = null;
   var addressStringMinusSuffix = addressString.replace(/[%\/].*/, '');
 
-  if (/^[01]{128}$/.test(addressString)) {
-    address = v6.Address.fromBigInteger(new BigInteger(addressString, 2));
-    addressStringMinusSuffix = address.parsedAddress.join(':');
-  } else {
-    address = new v6.Address(addressString);
+  try {
+    if (/^[01]{128}$/.test(addressString)) {
+      address = Address6.fromBigInt(BigInt('0b' + addressString));
+      addressStringMinusSuffix = address.parsedAddress.join(':');
+    } else {
+      address = new Address6(addressString);
+    }
+  } catch (e) {
+    parseError = e;
   }
 
-  if (address.isValid()) {
-    $('.error').hide();
+  var wrapper = $('#address-wrapper');
 
-    $('#address-wrapper').addClass('blue');
-    $('#address-wrapper').removeClass('red');
+  if (address) {
+    hideAll('.error');
 
-    $('#valid').text('Yes');
-    $('#correct').text(address.isCorrect() ? 'Yes' : 'No');
-    $('#canonical').text(address.isCanonical() ? 'Yes' : 'No');
+    wrapper.classList.add('blue');
+    wrapper.classList.remove('red');
 
-    $('#original').html(v6.Address.group(addressStringMinusSuffix));
+    $('#valid').textContent = 'Yes';
+    $('#correct').textContent = address.isCorrect() ? 'Yes' : 'No';
+    $('#canonical').textContent = address.isCanonical() ? 'Yes' : 'No';
 
-    $('#subnet').text(address.subnet ? sprintf('%s (%d network bits)',
-      address.subnet, 128 - address.subnetMask) : 'None');
+    setHtml($('#original'), groupAddressString(addressStringMinusSuffix));
 
-    $('#zone').text(address.zone ? address.zone : 'None');
+    $('#subnet').textContent = address.subnet ?
+      `${address.subnet} (${128 - address.subnetMask} network bits)` : 'None';
 
-    $('#subnet').unbind();
+    $('#zone').textContent = address.zone ? address.zone : 'None';
 
-    $('#subnet').hover(function () {
-      var row;
-      var $e;
-      var i;
+    var subnetEl = $('#subnet');
+
+    subnetEl.onmouseenter = function () {
+      var row, els, i;
 
       for (row = 1; row <= 2; row++) {
-        $e = $();
+        els = [];
 
         for (i = 0; i < address.subnetMask; i++) {
-          $e = $e.add(sprintf('#row-%d .position-%d', row, i));
+          els = els.concat($$(`#row-${row} .position-${i}`));
         }
 
-        $e.clone().prependTo('#row-' + row).wrapAll('<span class="active" />');
+        var rowEl = $(`#row-${row}`);
 
-        $e.addClass('hidden');
+        if (els.length && rowEl) {
+          var activeWrapper = document.createElement('span');
+
+          activeWrapper.className = 'active';
+
+          els.forEach(function (el) { activeWrapper.appendChild(el.cloneNode(true)); });
+
+          rowEl.insertBefore(activeWrapper, rowEl.firstChild);
+
+          els.forEach(function (el) { el.classList.add('hidden'); });
+        }
       }
 
       var bits = address.getBitsPastSubnet();
@@ -399,96 +570,97 @@ function updateAddress() {
 
       if (offset >= address.subnetMask) {
         for (row = 1; row <= 2; row++) {
-          $e = $();
-
           for (i = offset; i <= lastOffset; i++) {
-            $e = $e.add(sprintf('#row-%d .position-%d', row, i));
+            $$(`#row-${row} .position-${i}`).forEach(function (el) {
+              el.classList.add('error');
+            });
           }
-
-          $e.addClass('error');
         }
       }
-    }, function () {
-      $('#base-2 span.active').remove();
+    };
 
-      $('.digit').removeClass('hidden');
-      $('.digit').removeClass('error');
-    });
+    subnetEl.onmouseleave = function () {
+      $$('#base-2 span.active').forEach(function (e) { e.remove(); });
+      $$('.digit').forEach(function (e) {
+        e.classList.remove('hidden');
+        e.classList.remove('error');
+      });
+    };
 
-    $('#type').text(address.getType());
-    $('#scope').text(address.getScope());
+    $('#type').textContent = address.getType();
+    $('#scope').textContent = address.getScope();
 
     var parsed = address.parsedAddress.join(':');
     var correct = address.correctForm();
     var canonical = address.canonicalForm();
 
-    $('#parsed').html(v6.Address.group(parsed));
-    $('#correct-form').html(v6.Address.group(correct));
-    $('#canonical-form').html(v6.Address.group(canonical));
+    setHtml($('#parsed'), groupAddressString(parsed));
+    setHtml($('#correct-form'), groupAddressString(correct));
+    setHtml($('#canonical-form'), groupAddressString(canonical));
 
-    var v4 = address.v4inv6();
+    var v4 = address.to4in6();
 
-    $('#ipv4-form').html(v6.Address.group(v4));
+    setHtml($('#ipv4-form'), groupAddressString(v4));
+    setHtml($('#decimal-groups'), v6.helpers.simpleGroup(address.decimal()).join(':'));
 
-    $('#decimal-groups').html(v6.Address.simpleGroup(address.decimal()));
+    $('#base-16').textContent = address.bigInt().toString(16);
+    $('#base-10').textContent = address.bigInt().toString();
 
-    $('#base-16').text(address.bigInteger().toString(16));
-    $('#base-10').text(address.bigInteger().toString());
+    $('#reverse-form').textContent = address.reverseForm();
+    setHtml($('#link-form'), `<a href="${address.href()}">${address.href()}</a>`);
+    $('#microsoft-form').textContent = address.microsoftTranscription();
+    setHtml($('#hipku'), Hipku.encode(address.correctForm()).replace(/\n/g, '<br>'));
 
-    $('#reverse-form').text(address.reverseForm());
-    $('#link-form').html(sprintf('<a href="%1$s">%1$s</a>', address.href()));
-    $('#microsoft-form').text(address.microsoftTranscription());
-    $('#hipku').html(Hipku.encode(address.correctForm()).replace(/\n/g, '<br>'));
+    var sixToFour = address.is4() ? address.to6to4() : null;
+    var sixToFourHeader = document.getElementById('6to4-form-header');
+    var sixToFourValue = sixToFourHeader.nextElementSibling;
 
-    if (address.is4()) {
-      $('#6to4-form-header, #6to4-form-header + dd').show();
-      $('#6to4-form-header + dd').text(address.get6to4().correctForm() + '/16');
+    if (sixToFour) {
+      show(sixToFourHeader);
+      show(sixToFourValue);
+      sixToFourValue.textContent = sixToFour.correctForm() + '/16';
     } else {
-      $('#6to4-form-header, #6to4-form-header + dd').hide();
+      hide(sixToFourHeader);
+      hide(sixToFourValue);
     }
 
-    $('#first-address').html(address.startAddress()
-      .link({v4: addressStringMinusSuffix === v4}));
-    $('#last-address').html(address.endAddress()
-      .link({v4: addressStringMinusSuffix === v4}));
+    setHtml($('#first-address'), address.startAddress().link({v4: addressStringMinusSuffix === v4}));
+    setHtml($('#last-address'), address.endAddress().link({v4: addressStringMinusSuffix === v4}));
 
     updateBase2(address);
     updateSubnetSelect(address);
     updateTeredo(address);
     updateArinJson(address);
   } else {
-    $('#address-wrapper').addClass('red');
-    $('#address-wrapper').removeClass('blue');
+    wrapper.classList.add('red');
+    wrapper.classList.remove('blue');
 
-    $('.output').text('');
+    setText('.output', '');
 
-    $('#original').text(addressStringMinusSuffix);
+    $('#original').textContent = addressStringMinusSuffix;
 
-    if (address.parseError) {
-      $('#parsed').html(address.parseError);
+    if (parseError && parseError.parseMessage) {
+      setHtml($('#parsed'), parseError.parseMessage);
     }
 
-    $('.error').show();
-    $('#error').text(address.error);
+    showAll('.error');
+    $('#error').textContent = parseError ? parseError.message : '';
 
-    $('#valid').text('No');
+    $('#valid').textContent = 'No';
   }
 
-  $('body').attr('class', '');
+  document.body.className = '';
 
   addHoverBindings();
 }
 
-$(function () {
-  $(window).bind('hashchange', function () {
-    updateAddress();
-  });
+window.addEventListener('hashchange', updateAddress);
 
-  $(window).trigger('hashchange');
+updateAddress();
 
-  // Focus the address input field
-  $('#address').focus();
+$('#address').focus();
 
-  // Make the input textbox update on change and keyup
-  $('#address').bind('change keyup', pushState);
-});
+var onInput = function () { pushState(); };
+
+$('#address').addEventListener('change', onInput);
+$('#address').addEventListener('keyup', onInput);
